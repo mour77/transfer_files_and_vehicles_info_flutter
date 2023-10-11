@@ -11,7 +11,7 @@ Future<List<Map<String, dynamic>>> apiGetRequest(String endpoint ,{Map<String, S
  // String url = await getURL(endpoint);
  // String token = await getToken();
 
-  String url = "192.";
+  String url = "192.168.0.107:32008" + '/'  + endpoint;
   String token = "32008";
 
   print( "url " + url);

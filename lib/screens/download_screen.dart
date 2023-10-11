@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/File.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/my_entities/http_methods.dart';
 
 class DownloadScreen extends StatefulWidget {
   DownloadScreen(BuildContext context);
@@ -15,6 +17,7 @@ class DownloadScreenState extends State<DownloadScreen> {
   String title = "";
 
   List<MyFiles> lista = [];
+  Future<List<MyFiles>>? listaFuture ;
 
 
   @override
@@ -22,6 +25,15 @@ class DownloadScreenState extends State<DownloadScreen> {
     super.initState();
 
    // lista = ;
+
+    initList();
+
+  }
+
+
+  Future<void> initList() async {
+    List<Map<String, dynamic>> disksList = await apiGetRequest('/displayHardDisks');
+    lista = disksList.map((map) => MyFiles.fromJsonDisks(map)).toList();
 
   }
 
@@ -66,56 +78,15 @@ class DownloadScreenState extends State<DownloadScreen> {
               .size
               .height * 0.01),
           Expanded(
-            child: FutureBuilder(
-              builder: (context, AsyncSnapshot<List<MyFiles>> snapshot) {
-                if (snapshot.hasData) {
-                  return
-                    Center(
-                      child: ListView.separated(
-                        padding: const EdgeInsets.all(8),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return
-                            snapshot.data![index].name.isNotEmpty
-                              ? ListTile(
-                            title: Text('${snapshot.data?[index].name}'),
-                            //.title
-                            subtitle: RichText(
-                              text: const TextSpan(children: [
-
-                                TextSpan(
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black)),
-
-                                TextSpan(
-                                    style: TextStyle(color: Colors.grey)),
-
-                              ]),
-
-                            ),
-                            onTap: () {
-
-                            },
-                          )
-                              : Container();
-                        },
-                        separatorBuilder: (BuildContext context, int index) {
-                          return
-                            snapshot.data![index].name //.title
-                              .isNotEmpty
-                              ? Divider()
-                              : Container();
-                        },
-                      ),
-                    );
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Something went wrong'));
-                }
-                return CircularProgressIndicator();
+            child: ListView.builder(
+              itemCount: lista.length,
+              itemBuilder: (context, index) {
+                final obj = lista[index];
+                return ListTile(
+                  title: Text(obj.name),
+                  subtitle: Text('Name: ${obj.name.toString()}'),
+                );
               },
-              // future: shows,
-              future: lista,
             ),
           ),
         ],
