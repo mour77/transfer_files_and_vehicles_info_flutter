@@ -25,7 +25,7 @@ class MyFiles {
       ext: json['ext'] as String,
       path: json['path'] as String,
       fileSize: json['fileSize'] as int,
-      isFolder: json['isFolder'] as bool,
+      isFolder: json['folder'] as bool,
       isDisk: false,
 
     );
@@ -36,7 +36,7 @@ class MyFiles {
     // json["results"];
     return MyFiles(
       name: json['name'] as String,
-        ext: '', path: '',
+        ext: '' , path: '',
         fileSize: 0, isFolder: false,
         isDisk : true);
 

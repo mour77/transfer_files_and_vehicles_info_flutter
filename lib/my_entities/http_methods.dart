@@ -5,13 +5,16 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/utils.dart';
 
+
+
+
 Future<List<Map<String, dynamic>>> apiGetRequest(String endpoint ,{Map<String, String> headers = const{}}) async {
 
   // String url = "http://" + ipAddress + ":" + port + "/api/v2/" + endpoint;
  // String url = await getURL(endpoint);
  // String token = await getToken();
 
-  String url = "192.168.0.107:32008" + '/'  + endpoint;
+  String url = "http://192.168.254.51:32008"   + endpoint;
   String token = "32008";
 
   print( "url " + url);
