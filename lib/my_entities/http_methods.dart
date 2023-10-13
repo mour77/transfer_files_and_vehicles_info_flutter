@@ -1,6 +1,7 @@
 
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/utils.dart';
@@ -77,5 +78,36 @@ Future<List<Map<String, dynamic>>> apiGetRequest(String endpoint ,{Map<String, S
   }
 
 
+}
 
+
+
+
+
+Future<void> sendFile(String filePath) async {
+  try {
+    // Replace with the URL of the server to which you want to send the file
+    final url = Uri.parse('http://192.168.254.51:32008/uploadFile?filePath=D://');
+
+    // Create a MultipartRequest to send the file
+    final request = MultipartRequest('POST', url);
+
+    // Create a File object from the file you want to upload
+    File file = File(filePath); // Replace with the actual file path
+
+    // Attach the file to the request
+    request.files.add(await MultipartFile.fromPath('file', file.path));
+
+    // Send the request
+    final response = await request.send();
+
+    // Check the response status
+    if (response.statusCode == 200) {
+      print('File uploaded successfully.');
+    } else {
+      print('Failed to upload file. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error: $e');
+  }
 }

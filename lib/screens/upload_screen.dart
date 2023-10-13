@@ -1,11 +1,14 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../file_manager.dart';
 import '../my_entities/File.dart';
 import 'package:path/path.dart' ;
+
+import '../my_entities/http_methods.dart';
 
 
 class UploadScreen extends StatefulWidget {
@@ -81,28 +84,43 @@ class UploadScreenState extends State<UploadScreen> {
 
 
   void _getFiles  () async {
-    List<File>   l = await  listFilesInExternalDirectory(pathController.text);
+
+    print('selected path ' + pathController.text);
+    List<FileSystemEntity>  fileSystemList = await  listFilesInExternalDirectory(pathController.text);
     setState(() {
 
+      lista.clear();
 
-      for (File entity in l) {
-
-
+      for (FileSystemEntity entity in fileSystemList) {
+        print(basenameWithoutExtension(entity.path));
         if (entity is File) {
           print('File: ${entity.path}');
 
           File file = entity;
+          int size = file.lengthSync();
           MyFiles myFile  = MyFiles(
               name: basenameWithoutExtension(file.path),
               ext: extension(file.path),
               path: file.path,
-              fileSize: 0,
+              fileSize: size,
               isFolder: false,
               isDisk: false);
 
           lista.add(myFile);
 
 
+        } else if (entity is Directory) {
+          Directory dir = entity;
+          MyFiles myFile  = MyFiles(
+              name: basenameWithoutExtension(dir.path),
+              ext: '',
+              path: dir.path,
+              fileSize: 0,
+              isFolder: true,
+              isDisk: false);
+          lista.add(myFile);
+
+          print('Directory: ${entity.path}');
         }
 
       }
@@ -112,11 +130,8 @@ class UploadScreenState extends State<UploadScreen> {
 
 
 
-
-
       //lista = disksList.map((map) => MyFiles.fromJson(map)).toList();
 
-      print(lista);
     });
 
   }
@@ -174,30 +189,34 @@ class UploadScreenState extends State<UploadScreen> {
 
                     IconButton(
                       icon: const Icon(Icons.backspace_outlined),
-                      onPressed: () {
+                      onPressed: () async {
+
+                        FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+                        if (result != null) {
+                          PlatformFile file = result.files.first;
+
+                          // Handle the selected file, for example, display its path:
+                          print('File path: ${file.path}');
+                          sendFile(file.path!);
+
+                        } else {
+                          // User canceled the file selection.
+                          print('File selection canceled.');
+                        }
+
+
                         setState(() {
 
-                          String fullPath = pathController.text;
-                          if (fullPath.endsWith("://")){
-                            pathController.text = '';
-                           // initListDisks();
-
-                            return;
-                          }
-
-                          int  pos = fullPath.lastIndexOf("//");
-                          String substring = fullPath.substring(0, pos);
-
-
-                          //gia tous diskous einai auto
-                          if(substring.endsWith(":")) {
-                            substring = "$substring//";
-                          }
-
-                          pathController.text = substring;
-
-
-                         // _getFiles();
+                          // String fullPath = pathController.text;
+                          //
+                          // int  pos = fullPath.lastIndexOf("/");
+                          // String substring = fullPath.substring(0, pos);
+                          //
+                          // pathController.text = substring;
+                          //
+                          //
+                          // _getFiles();
                         });
                       },
                     ),
@@ -266,7 +285,15 @@ class UploadScreenState extends State<UploadScreen> {
 
   Future<List<FileSystemEntity>> listFilesAndDirectoriesInInternalStorage() async {
     try {
-    //  Directory internalStorageDir = await getApplicationDocumentsDirectory();
+      Directory d = await getApplicationDocumentsDirectory();
+      print('monopati   ' + d.path);
+
+     // Directory? directory = await getDownloadsDirectory(); mono macos
+
+      // String path = await ExtStorage.getExternalStoragePublicDirectory(
+      //     ExtStorage.DIRECTORY_DOWNLOADS);
+
+
       final internalStorageDir = await getApplicationDocumentsDirectory();
       pathController.text = internalStorageDir.path;
       if (internalStorageDir == null) {
@@ -282,20 +309,14 @@ class UploadScreenState extends State<UploadScreen> {
   }
 
 
-  Future<List<File>> listFilesInExternalDirectory(String directoryPath) async {
+  Future<List<FileSystemEntity>> listFilesInExternalDirectory(String directoryPath) async {
     try {
       Directory externalDir = Directory(directoryPath);
 
       if (await externalDir.exists()) {
         List<FileSystemEntity> filesAndDirs = await externalDir.list().toList();
-        List<File> files = [];
-        print("megethos" + filesAndDirs.length.toString());
-        for (var entity in filesAndDirs) {
-          if (entity is File) {
-            files.add(entity);
-          }
-        }
-        return files;
+        return filesAndDirs;
+
       } else {
         throw FileSystemException('Directory does not exist');
       }

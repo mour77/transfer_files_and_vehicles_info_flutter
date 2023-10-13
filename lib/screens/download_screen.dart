@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/File.dart';
@@ -68,7 +69,11 @@ class DownloadScreenState extends State<DownloadScreen> {
 
       Scaffold(
 
-
+          floatingActionButton: FloatingActionButton(
+            onPressed: pickFile,
+            tooltip: 'upload',
+            child: const Icon(Icons.upload),
+          ),
       body:
       Column(
 
@@ -198,5 +203,22 @@ class DownloadScreenState extends State<DownloadScreen> {
 
 
 
+
+  Future<void> pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+
+      // Handle the selected file, for example, display its path:
+      print('File path: ${file.path}');
+      sendFile(file.path!);
+
+
+    } else {
+      // User canceled the file selection.
+      print('File selection canceled.');
+    }
+  }
 
 }
