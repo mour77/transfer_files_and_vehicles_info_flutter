@@ -15,7 +15,8 @@ Future<List<Map<String, dynamic>>> apiGetRequest(String endpoint ,{Map<String, S
  // String url = await getURL(endpoint);
  // String token = await getToken();
 
-  String url = "http://192.168.254.51:32008"   + endpoint;
+ // String url = "http://192.168.254.51:32008"   + endpoint;
+  String url = "http://192.168.0.107:32008"   + endpoint;
   String token = "32008";
 
   print( "url " + url);
@@ -36,6 +37,7 @@ Future<List<Map<String, dynamic>>> apiGetRequest(String endpoint ,{Map<String, S
     Uri.parse(url),
     headers: headersMap,
   );
+
 
   String responseBody = utf8.decode(response.bodyBytes);
 
@@ -84,10 +86,10 @@ Future<List<Map<String, dynamic>>> apiGetRequest(String endpoint ,{Map<String, S
 
 
 
-Future<void> sendFile(String filePath) async {
+Future<void> sendFile(String filePath, String destinationPath) async {
   try {
     // Replace with the URL of the server to which you want to send the file
-    final url = Uri.parse('http://192.168.254.51:32008/uploadFile?filePath=D://');
+    final url = Uri.parse('http://192.168.0.107:32008/uploadFile?path=$destinationPath');
 
     // Create a MultipartRequest to send the file
     final request = MultipartRequest('POST', url);
@@ -103,11 +105,11 @@ Future<void> sendFile(String filePath) async {
 
     // Check the response status
     if (response.statusCode == 200) {
-      print('File uploaded successfully.');
+      showMsg('File uploaded successfully.');
     } else {
-      print('Failed to upload file. Status code: ${response.statusCode}');
+      showMsg('Failed to upload file. Status code: ${response.statusCode}');
     }
   } catch (e) {
-    print('Error: $e');
+    showMsg('Error: $e');
   }
 }

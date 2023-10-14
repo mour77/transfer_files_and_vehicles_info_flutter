@@ -1,10 +1,13 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart';
+import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/File.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/http_methods.dart';
 
 import '../file_manager.dart';
+import '../my_entities/utils.dart';
 
 class DownloadScreen extends StatefulWidget {
   const DownloadScreen(BuildContext context, {super.key});
@@ -168,11 +171,12 @@ class DownloadScreenState extends State<DownloadScreen> {
                   return
                     ListTile(
                       title: Text(file.name + (file.ext.isNotEmpty ? ".${file.ext}" : "")),
+                      subtitle: Text(file.ext.isNotEmpty ? getFileSizeMegaBytes(file.fileSize) : ""),
                       trailing: getIconForFile(file.ext),
 
                       onTap: (){
                       if(file.ext.isNotEmpty) {
-                        openSelectedFile(file.name, file.ext, file.path);
+                        openSelectedFile(file.name, file.ext, file.path, context);
 
                         return;
                       }
@@ -205,6 +209,13 @@ class DownloadScreenState extends State<DownloadScreen> {
 
 
   Future<void> pickFile() async {
+
+    String destinationPath = pathController.text;
+    if(destinationPath.isEmpty){
+      showMsg("Επιλέξτε μονοπάτι");
+      return;
+
+    }
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null) {
@@ -212,7 +223,7 @@ class DownloadScreenState extends State<DownloadScreen> {
 
       // Handle the selected file, for example, display its path:
       print('File path: ${file.path}');
-      sendFile(file.path!);
+      sendFile(file.path!, pathController.text);
 
 
     } else {
@@ -220,5 +231,9 @@ class DownloadScreenState extends State<DownloadScreen> {
       print('File selection canceled.');
     }
   }
+
+
+
+
 
 }

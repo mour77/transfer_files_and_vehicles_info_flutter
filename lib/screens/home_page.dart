@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:transfer_files_and_vehicles_info_flutter/screens/upload_screen.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/screens/settings_screen.dart';
 
-import 'camera_screen.dart';
+import 'upload_photo_screen.dart';
 import 'download_screen.dart';
 
 
@@ -30,32 +30,13 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _screens = [];
 
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-    });
-
-
-    @override
-    initState(){
-      super.initState();
-      //currentIndex = 2;
-
-    //  title = Language.lit(Settings.getLang(), 'Patients|Ασθενείς');
-
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     _screens = [
       DownloadScreen(context),
-      UploadScreen(context),
       CameraScreen(context),
+      UploadScreen(context),
 
     ];
 
@@ -126,13 +107,13 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
 
       const BottomNavigationBarItem(
-          icon: Icon(Icons.file_upload_outlined),
-          label: 'Upload',
+          icon: Icon(Icons.add_a_photo_outlined),
+          label: 'Photo Upload',
         ),
 
       const BottomNavigationBarItem(
-          icon: Icon(Icons.add_a_photo_outlined),
-          label: 'Camera Upload',
+          icon: Icon(Icons.settings_outlined),
+          label: 'Settings',
         ),
 
 

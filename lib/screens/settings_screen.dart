@@ -43,41 +43,6 @@ class UploadScreenState extends State<UploadScreen> {
 
 
   initList() async {
-    listaSystem =  await listFilesAndDirectoriesInInternalStorage();
-
-    for (var entity in listaSystem) {
-
-
-      if (entity is File) {
-        print('File: ${entity.path}');
-
-        File file = entity;
-        int size = await file.length();
-        MyFiles myFile  = MyFiles(
-            name: basenameWithoutExtension(file.path),
-            ext: extension(file.path),
-            path: file.path,
-            fileSize: size,
-            isFolder: false,
-            isDisk: false);
-
-        lista.add(myFile);
-
-
-      } else if (entity is Directory) {
-        Directory dir = entity;
-        MyFiles myFile  = MyFiles(
-            name: basenameWithoutExtension(dir.path),
-            ext: '',
-            path: dir.path,
-            fileSize: 0,
-            isFolder: true,
-            isDisk: false);
-        lista.add(myFile);
-
-        print('Directory: ${entity.path}');
-      }
-    }
 
   }
 
@@ -90,45 +55,6 @@ class UploadScreenState extends State<UploadScreen> {
     setState(() {
 
       lista.clear();
-
-      for (FileSystemEntity entity in fileSystemList) {
-        print(basenameWithoutExtension(entity.path));
-        if (entity is File) {
-          print('File: ${entity.path}');
-
-          File file = entity;
-          int size = file.lengthSync();
-          MyFiles myFile  = MyFiles(
-              name: basenameWithoutExtension(file.path),
-              ext: extension(file.path),
-              path: file.path,
-              fileSize: size,
-              isFolder: false,
-              isDisk: false);
-
-          lista.add(myFile);
-
-
-        } else if (entity is Directory) {
-          Directory dir = entity;
-          MyFiles myFile  = MyFiles(
-              name: basenameWithoutExtension(dir.path),
-              ext: '',
-              path: dir.path,
-              fileSize: 0,
-              isFolder: true,
-              isDisk: false);
-          lista.add(myFile);
-
-          print('Directory: ${entity.path}');
-        }
-
-      }
-
-
-
-
-
 
       //lista = disksList.map((map) => MyFiles.fromJson(map)).toList();
 
@@ -198,7 +124,6 @@ class UploadScreenState extends State<UploadScreen> {
 
                           // Handle the selected file, for example, display its path:
                           print('File path: ${file.path}');
-                          sendFile(file.path!);
 
                         } else {
                           // User canceled the file selection.
@@ -250,7 +175,6 @@ class UploadScreenState extends State<UploadScreen> {
                           onTap: (){
 
                             if(file.ext.isNotEmpty) {
-                              openSelectedFile(file.name, file.ext, file.path);
 
                               return;
                             }
@@ -297,7 +221,7 @@ class UploadScreenState extends State<UploadScreen> {
       final internalStorageDir = await getApplicationDocumentsDirectory();
       pathController.text = internalStorageDir.path;
       if (internalStorageDir == null) {
-        throw FileSystemException('Internal storage directory not found');
+        throw const FileSystemException('Internal storage directory not found');
       }
 
       List<FileSystemEntity> filesAndDirs = await internalStorageDir.list().toList();
