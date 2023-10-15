@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/screens/home_page.dart';
 
-import 'home_page.dart';
+import 'transfer_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const HomePage(title: 'Flutter Demo Home Page'),
       // routes: {
       //   'login': (context) => MyLogin(),
       //   'splash': (context) => SplashScreen(),
