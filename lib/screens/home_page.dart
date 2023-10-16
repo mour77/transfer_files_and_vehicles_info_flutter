@@ -1,17 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:transfer_files_and_vehicles_info_flutter/screens/settings_screen.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/my_entities/select_first_screen.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/screens/login_screen.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/screens/transferScreens/settings_transfer_screen.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/screens/transferScreens/transfer_page.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/screens/vehicles/vehicles_movements_screen.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/screens/vehicles/vehicles_page.dart';
 
-import 'upload_photo_screen.dart';
-import 'download_screen.dart';
+import '../firebase_options.dart';
+import 'transferScreens/upload_photo_screen.dart';
+import 'transferScreens/download_screen.dart';
 
 
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
+  const HomePage({super.key});
 
 
 
-  final String title;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -24,26 +31,57 @@ class _HomePageState extends State<HomePage> {
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Index 0: Home',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 1: Business',
-      style: optionStyle,
-    ),
-    Text(
-      'Index 2: School',
-      style: optionStyle,
-    ),
+
+    TransferPage(title: ''),
+    VehiclesPage(title: ''),
+
+
   ];
+
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  initialize() async{
+    int id = await getSelectedFirstScreen();
+    if(id == SelectFirstScreen.transferFiles.id) {
+      _selectedIndex = 0;
+    } else {
+      _selectedIndex = 1;
+    }
+
+
+    await Firebase.initializeApp(
+
+      options: DefaultFirebaseOptions.currentPlatform,
+
+    );
+
+
+
+
+  }
+
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _manageTitle(_selectedIndex);
     });
   }
 
+  void _manageTitle(int index){
+    if(_selectedIndex == 0){
+      title = 'Transfer Files';
+    }
+    else{
+      title = 'Vehicles';
+    }
+
+  }
 
 
   @override
@@ -60,15 +98,23 @@ class _HomePageState extends State<HomePage> {
 
       Scaffold(
         appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
-        ),
+          title: Text(title),
+          actions: [
 
+            IconButton(
+              icon:  const Icon(Icons.logout),
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => const LoginScreen(),
+                ));
+              },
+            ),
+          ],
+        ),
         body:
         Center(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
+          child: _widgetOptions[_selectedIndex],
         ),
 
 
@@ -90,22 +136,22 @@ class _HomePageState extends State<HomePage> {
 
 
               ListTile(
-                title: const Text('Home'),
+                title: const Text('Transfer files'),
                 selected: _selectedIndex == 0,
                 onTap: () {
-                  // Update the state of the app
                   _onItemTapped(0);
-                  // Then close the drawer
+
                   Navigator.pop(context);
+
                 },
               ),
               ListTile(
-                title: const Text('Business'),
+                title: const Text('Vehicles'),
                 selected: _selectedIndex == 1,
                 onTap: () {
-                  // Update the state of the app
                   _onItemTapped(1);
-                  // Then close the drawer
+
+
                   Navigator.pop(context);
                 },
               ),

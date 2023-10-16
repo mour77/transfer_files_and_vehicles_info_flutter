@@ -6,8 +6,8 @@ import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/File.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/http_methods.dart';
 
-import '../file_manager.dart';
-import '../my_entities/utils.dart';
+import '../../file_manager.dart';
+import '../../my_entities/utils.dart';
 
 class DownloadScreen extends StatefulWidget {
   const DownloadScreen(BuildContext context, {super.key});
@@ -73,6 +73,7 @@ class DownloadScreenState extends State<DownloadScreen> {
       Scaffold(
 
           floatingActionButton: FloatingActionButton(
+            heroTag: "downloadTag",
             onPressed: pickFile,
             tooltip: 'upload',
             child: const Icon(Icons.upload),

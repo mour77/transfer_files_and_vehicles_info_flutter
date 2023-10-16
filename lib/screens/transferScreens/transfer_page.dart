@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:transfer_files_and_vehicles_info_flutter/screens/settings_screen.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/screens/transferScreens/settings_transfer_screen.dart';
 
 import 'upload_photo_screen.dart';
 import 'download_screen.dart';
@@ -9,14 +9,7 @@ import 'download_screen.dart';
 class TransferPage extends StatefulWidget {
   const TransferPage({super.key, required this.title});
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -36,7 +29,7 @@ class _TransferPageState extends State<TransferPage> {
     _screens = [
       DownloadScreen(context),
       CameraScreen(context),
-      UploadScreen(context),
+      SettingsTransferScreen(context),
 
     ];
 
@@ -44,25 +37,28 @@ class _TransferPageState extends State<TransferPage> {
     return
 
       Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-          icon:  const Icon(Icons.logout),
-          onPressed: () async {
 
-           // String response = await logout();
-          //  print('logoutResponse   ' + response);
-
-           // Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => MyLogin()));
-
-
-          },
-        ),
-        ],
-      ),
+        // appBar: AppBar(
+        //   title: Text(title),
+        //   actions: [
+        //     (currentIndex == 0 ?
+        //
+        //   IconButton(
+        //       icon:  const Icon(Icons.refresh_outlined),
+        //       onPressed: () async {
+        //
+        //       },
+        //     ) : Container()
+        //
+        //     ),
+        //     IconButton(
+        //       icon:  const Icon(Icons.logout),
+        //       onPressed: () async {
+        //
+        //       },
+        //     ),
+        //   ],
+        // ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
@@ -127,11 +123,11 @@ class _TransferPageState extends State<TransferPage> {
 
 
         switch(index){
-          case 0: {title =  'Ασθενείς';}
+          case 0: {title =  'Transfer files';}
           break;
-          case 1: {title ='Appointments';}
+          case 1: {title ='Photo upload';}
           break;
-          case 2: {title ='test';}
+          case 2: {title ='Settings';}
           break;
 
         }

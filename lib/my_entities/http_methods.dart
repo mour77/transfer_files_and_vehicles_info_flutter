@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/utils.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/shared_preferences.dart';
 
 
 
@@ -15,11 +16,11 @@ Future<List<Map<String, dynamic>>> apiGetRequest(String endpoint ,{Map<String, S
  // String url = await getURL(endpoint);
  // String token = await getToken();
 
- // String url = "http://192.168.254.51:32008"   + endpoint;
-  String url = "http://192.168.0.107:32008"   + endpoint;
-  String token = "32008";
+  //String url = "http://192.168.254.51:32008"   + endpoint;
+  //String url = "http://192.168.0.107:32008"   + endpoint;
+  String url = await getUrlAndPort()   + endpoint;
 
-  print( "url " + url);
+  print( "url $url");
 
   Map<String, String>  headersMap =
   <String, String>{
@@ -89,7 +90,9 @@ Future<List<Map<String, dynamic>>> apiGetRequest(String endpoint ,{Map<String, S
 Future<void> sendFile(String filePath, String destinationPath) async {
   try {
     // Replace with the URL of the server to which you want to send the file
-    final url = Uri.parse('http://192.168.0.107:32008/uploadFile?path=$destinationPath');
+    final  url = Uri.parse('${await getUrlAndPort()}/uploadFile?path=$destinationPath') ;
+
+    //final url = Uri.parse('http://192.168.254.51:32008/uploadFile?path=$destinationPath');
 
     // Create a MultipartRequest to send the file
     final request = MultipartRequest('POST', url);
@@ -112,4 +115,14 @@ Future<void> sendFile(String filePath, String destinationPath) async {
   } catch (e) {
     showMsg('Error: $e');
   }
+}
+
+
+
+
+Future<String> getUrlAndPort() async {
+  String url = await getSavedString(urlSP);
+  String port = await getSavedString(portSP);
+
+  return "http://$url:$port";
 }

@@ -1,33 +1,30 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:settings_ui/settings_ui.dart';
-import '../file_manager.dart';
-import '../my_entities/File.dart';
-import 'package:path/path.dart' ;
-
-import '../my_entities/http_methods.dart';
-import '../shared_thumbnail.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/my_entities/select_first_screen.dart';
 
 
-class UploadScreen extends StatefulWidget {
-  const UploadScreen(BuildContext context, {super.key});
+import '../../shared_preferences.dart';
+
+
+class SettingsTransferScreen extends StatefulWidget {
+  const SettingsTransferScreen(BuildContext context, {super.key});
 
 
   @override
-  State <UploadScreen> createState() =>  UploadScreenState();
+  State <SettingsTransferScreen> createState() =>  SettingsTransferScreenState();
 }
 
 
 
 
-class UploadScreenState extends State<UploadScreen> {
+class SettingsTransferScreenState extends State<SettingsTransferScreen> {
 
   bool showThumbnail = false;
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _portController = TextEditingController();
+  SelectFirstScreen? _selectedFirstScreen;
 
   @override
   initState() {
@@ -42,11 +39,22 @@ class UploadScreenState extends State<UploadScreen> {
     showThumbnail = await isThumbnailOn();
     _urlController.text = await getSavedString(urlSP);
     _portController.text = await getSavedString(portSP);
+
+    int id = await getSelectedFirstScreen();
+    if(id == SelectFirstScreen.transferFiles.id) {
+      _selectedFirstScreen = SelectFirstScreen.transferFiles;
+    } else {
+      _selectedFirstScreen = SelectFirstScreen.vehicles;
+    }
+
   }
 
 
   @override
   Widget build(BuildContext context) {
+
+
+
     return
       Scaffold(
 
@@ -120,6 +128,45 @@ class UploadScreenState extends State<UploadScreen> {
 
                 ),
               ),
+              
+              
+              SettingsTile(title: const Text('Select starting screen'),
+              value:
+                Column(
+                  children: [
+                    ListTile(
+                      title: const Text('Transfer files'),
+                      leading: Radio<SelectFirstScreen>(
+                        value: SelectFirstScreen.transferFiles,
+                        groupValue: _selectedFirstScreen,
+                        onChanged: (SelectFirstScreen? value) {
+                          setState(() {
+                            _selectedFirstScreen = value;
+                            setFirstScreen(_selectedFirstScreen!);
+                          });
+                        },
+                      ),
+                    ),
+                    ListTile(
+                      title: const Text('Vehicles'),
+                      leading: Radio<SelectFirstScreen>(
+                        value: SelectFirstScreen.vehicles,
+                        groupValue: _selectedFirstScreen,
+                        onChanged: (SelectFirstScreen? value) {
+                          setState(() {
+                            _selectedFirstScreen = value;
+                            setFirstScreen(_selectedFirstScreen!);
+
+                          });
+
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+
+              )
 
             ],
 

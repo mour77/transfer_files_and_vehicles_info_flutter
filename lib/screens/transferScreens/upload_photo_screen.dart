@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/utils.dart';
 
-import '../my_entities/http_methods.dart';
+import '../../my_entities/http_methods.dart';
 
 
 
@@ -60,6 +60,7 @@ class CameraScreenState extends State<CameraScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'uploadTag',
         tooltip: 'camera',
         onPressed: () {  initializeCamera(); },
         child: const Icon(Icons.camera_alt_rounded),

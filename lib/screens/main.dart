@@ -1,14 +1,32 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/screens/home_page.dart';
 
-import 'transfer_page.dart';
+import '../firebase_options.dart';
+import 'login_screen.dart';
+import 'transferScreens/transfer_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+
+    options: DefaultFirebaseOptions.currentPlatform,
+
+  );
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
+
+
+
+  Future<void> initApp() async {
+
+
+  }
+
 
   // This widget is the root of your application.
   @override
@@ -27,7 +45,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const HomePage(title: 'Flutter Demo Home Page'),
+      home: const LoginScreen(),
       // routes: {
       //   'login': (context) => MyLogin(),
       //   'splash': (context) => SplashScreen(),
