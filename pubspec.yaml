@@ -43,7 +43,7 @@ dependencies:
   platform_device_id: ^1.0.1
   path_provider: 2.1.0
   photo_manager: 2.7.0
-
+  intl: ^0.18.1
   camera: 0.10.5+3 # Use the latest version
   image_picker: 1.0.4 # Use the latest version
   image: 4.0.17 # Required for image processing
@@ -53,7 +53,7 @@ dependencies:
   settings_ui: ^2.0.2
   oktoast: ^3.3.1
   fluttertoast: ^8.1.1
-
+  flutter_expandable_fab: 2.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -63,6 +63,7 @@ dependencies:
   firebase_core_desktop: ^1.0.2
   google_sign_in: 6.1.5
   firebase_auth: ^4.10.1
+  cloud_firestore: ^4.9.3
 
 
 dependency_overrides:

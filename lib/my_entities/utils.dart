@@ -2,8 +2,10 @@
 
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 
 bool isValidJSON(String str){
@@ -54,3 +56,36 @@ String getFileSizeKiloBytes(int size) {
  String getFileSizeMegaBytes(int size) {
   return "${(size / (1024 * 1024)).toStringAsFixed(2)} mb";
 }
+
+
+int toInt(String number){
+  if(number.isEmpty) {
+    return 0;
+  }
+
+  return int.parse(number);
+}
+
+
+
+  Timestamp convertDateStrToTimestamp(String dateStr){
+
+    List<String> dateParts = dateStr.split('/');
+    int day = int.parse(dateParts[0]);
+    int month = int.parse(dateParts[1]);
+    int year = int.parse(dateParts[2]);
+    DateTime date = DateTime(year, month, day);
+
+    return Timestamp.fromDate(date);
+
+  }
+
+
+  String convertTimestampToDateStr(Timestamp date){
+
+    final formatter = DateFormat('dd/MM/yyyy');
+    return formatter.format( date.toDate());
+
+  }
+
+
