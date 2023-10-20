@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:transfer_files_and_vehicles_info_flutter/my_entities/utils.dart';
-import 'package:transfer_files_and_vehicles_info_flutter/screens/transferScreens/settings_transfer_screen.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/screens/vehicles/targets_screen.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/screens/vehicles/vehicles_movements_screen.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/screens/vehicles/vehicles_settings_screen.dart';
-import 'package:flutter/material.dart';
-
-import '../../dialogs/add_gas_dialog.dart';
-import '../../dialogs/add_repair_dialog.dart';
-import '../../dialogs/add_vehicle_dialog.dart';
-import '../../dialogs/edittext_for_dialogs.dart';
 
 
 
@@ -35,6 +27,7 @@ class _VehiclesPageState extends State<VehiclesPage> {
   Widget build(BuildContext context) {
     _screens = [
       VehiclesMovementsScreen(context),
+      TargetsScreen(context),
       SettingsVehiclesScreen(context),
 
     ];
@@ -43,52 +36,7 @@ class _VehiclesPageState extends State<VehiclesPage> {
     return
 
       Scaffold(
-        floatingActionButtonLocation: ExpandableFab.location,
-        floatingActionButton: ExpandableFab(
-          overlayStyle: ExpandableFabOverlayStyle(blur: 5,),
-          onOpen: () {
-            debugPrint('onOpen');
-          },
-          afterOpen: () {
-            debugPrint('afterOpen');
-          },
-          onClose: () {
-            debugPrint('onClose');
-          },
-          afterClose: () {
-            debugPrint('afterClose');
-          },
-          children: [
-            // extended για να εχει κειμενο
-            FloatingActionButton.small(
 
-              tooltip: 'Add vehicle',
-              heroTag: null,
-              child: const Icon(Icons.add),
-              onPressed: () {
-                showVehicleDialog(context, true);
-              },
-
-            ),
-            FloatingActionButton.small(
-              tooltip: 'Add repair',
-              heroTag: null,
-              child: const Icon(Icons.build_outlined),
-              onPressed: () {
-                showRepairDialog(context , true, 'IFUdPOun9zqHqfN39s6Z');
-              },
-            ),
-            FloatingActionButton.small(
-              tooltip: 'Add gas',
-              heroTag: null,
-              child: const Icon(Icons.local_gas_station_outlined),
-              onPressed: () {
-                showGasDialog(context , true, 'IFUdPOun9zqHqfN39s6Z');
-
-              },
-            ),
-          ],
-        ),
 
 
         body: Center(
@@ -131,10 +79,16 @@ class _VehiclesPageState extends State<VehiclesPage> {
     return [
       const BottomNavigationBarItem(
         icon: Icon(Icons.home_repair_service_outlined),
-        label:  'Movements',
+        label:  'History',
       ),
 
 
+      const BottomNavigationBarItem(
+        icon: Icon(Icons.track_changes_sharp),
+        label: 'Targets',
+
+
+      ),
       const BottomNavigationBarItem(
         icon: Icon(Icons.settings_outlined),
         label: 'Settings',
@@ -151,9 +105,11 @@ class _VehiclesPageState extends State<VehiclesPage> {
 
 
       switch(index){
-        case 0: {title =  'Movements';}
+        case 0: {title =  'History';}
         break;
-        case 1: {title ='Settings';}
+        case 1: {title = 'Targets';}
+        break;
+        case 2: {title = 'Settings';}
         break;
 
       }

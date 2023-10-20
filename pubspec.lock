@@ -732,10 +732,10 @@ packages:
     dependency: "direct main"
     description:
       name: oktoast
-      sha256: "8aaba888125c991375156b1d88b4cd2f594ba5baf027850075ac101e0d4c56b3"
+      sha256: f12a6f5c26986f8e48546104d4c0bea68dd82782940876ca299f7f406f521110
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.2"
+    version: "3.3.2+1"
   open_file_safe:
     dependency: "direct main"
     description:

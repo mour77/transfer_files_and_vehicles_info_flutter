@@ -89,3 +89,9 @@ int toInt(String number){
   }
 
 
+  String getCurrentDate() {
+    var now = DateTime.now();
+    var formatter = DateFormat('dd/MM/yyyy');
+    String formatted = formatter.format(now);
+    return formatted;
+  }

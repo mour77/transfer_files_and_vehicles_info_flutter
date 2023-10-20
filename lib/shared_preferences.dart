@@ -9,6 +9,9 @@ const String imageServerPath = "imageServerPath";
 
 const String selectFirstScreen = "selectFirstScreen";
 
+const String selectVehicleID = "selectVehicledID";
+const String selectTargetID = "selectTargetID";
+
 
 
 void  saveString(String settings, String value) async {
