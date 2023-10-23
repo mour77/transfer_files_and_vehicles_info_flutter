@@ -15,14 +15,15 @@ void addMovement(BuildContext context, String targetID){
   showMovementDialog(context , targetID: targetID);
 }
 
-void editMovement(BuildContext context, String? movementID, Map<String, dynamic>? dataMap ){
-  showMovementDialog(context , movementID: movementID, dataMap: dataMap);
+Future<void> editMovement(BuildContext context, String? movementID, Map<String, dynamic>? dataMap, [Future<void> Function()? runMethod] ) async {
+  showMovementDialog(context , movementID: movementID, dataMap: dataMap, runMethod: runMethod);
 }
 
 
-void showMovementDialog(BuildContext context,  {String? targetID , String? movementID, Map<String, dynamic>? dataMap}) {
+void showMovementDialog(BuildContext context,  {String? targetID , String? movementID, Map<String, dynamic>? dataMap, Future<void> Function()? runMethod}) {
 
 
+  print(movementID);
 
   TextEditingController titleController = TextEditingController();
   TextEditingController moneyController = TextEditingController();
@@ -48,10 +49,11 @@ void showMovementDialog(BuildContext context,  {String? targetID , String? movem
       'title': titleController.text,
       'cost': toInt(moneyController.text),
       'date': convertDateStrToTimestamp(dateController.text),
-      'targetID': targetID,
     };
 
-
+    if( targetID != null && targetID.isNotEmpty){
+      valuesMap['targetID'] = targetID;
+    }
 
 
     if(dataMap != null && dataMap.isNotEmpty){
@@ -63,10 +65,6 @@ void showMovementDialog(BuildContext context,  {String? targetID , String? movem
 
 
     Navigator.of(context).pop();
-
-
-
-
 
 
 
@@ -101,7 +99,15 @@ void showMovementDialog(BuildContext context,  {String? targetID , String? movem
         ],
       );
     },
-  );
+  ).then((value)  {
+
+
+    print('skata');
+    if(runMethod != null){
+      print('mpika runmethod');
+      runMethod();
+    }
+  });
 
 
 

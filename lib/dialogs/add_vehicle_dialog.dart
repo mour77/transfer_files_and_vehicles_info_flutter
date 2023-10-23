@@ -59,6 +59,7 @@ void showVehicleDialog(BuildContext context, bool addVehicle) {
     
 
 
+
   }
 
 
@@ -66,24 +67,30 @@ void showVehicleDialog(BuildContext context, bool addVehicle) {
     context: context,
     builder: (BuildContext context) {
       // Create a custom widget for the dialog content
-      return AlertDialog(
+      return
+
+        AlertDialog(
         title:  Text(addVehicle ? 'Add vehicle' : 'Edit vehicle'),
-        content:  Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
+        content:
 
-            getEdittext("Brand", brandController),
-            getEdittext("Model", modelController),
-            getEdittext("Kivika", kivikaController, textInputType: TextInputType.number),
-            getEdittext("Hp", hpController , textInputType: TextInputType.number),
-            getEdittext("Year", yearController, textInputType: TextInputType.number),
-            getEdittext("Πινακίδα", pinakidaController),
-            getEdittext("Τύπος καυσίμου", tiposKausimouController),
-            getEdittext("Χωρητικότητα", xoritikotitaController, textInputType: TextInputType.number),
-            getEdittext("Αρ. κυκλοφορίας", arKikloforiasController),
-            getEdittext("Αρ. πλαισίου", arPlaisiouController),
+        SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
 
-          ],
+              getEdittext("Brand", brandController),
+              getEdittext("Model", modelController),
+              getEdittext("Kivika", kivikaController, textInputType: TextInputType.number),
+              getEdittext("Hp", hpController , textInputType: TextInputType.number),
+              getEdittext("Year", yearController, textInputType: TextInputType.number),
+              getEdittext("Πινακίδα", pinakidaController),
+              getEdittext("Τύπος καυσίμου", tiposKausimouController),
+              getEdittext("Χωρητικότητα", xoritikotitaController, textInputType: TextInputType.number),
+              getEdittext("Αρ. κυκλοφορίας", arKikloforiasController),
+              getEdittext("Αρ. πλαισίου", arPlaisiouController),
+
+            ],
+          ),
         ),
         actions: <Widget>[
           ElevatedButton(
@@ -97,6 +104,7 @@ void showVehicleDialog(BuildContext context, bool addVehicle) {
       );
     },
   );
+
 
 
 

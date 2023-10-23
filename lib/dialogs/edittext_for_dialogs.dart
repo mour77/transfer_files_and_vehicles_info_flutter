@@ -7,29 +7,26 @@ Widget getEdittext(String title, TextEditingController controller ,
 
   return
      Padding(
-      padding: const EdgeInsets.all(8.0),
-      child:
-      Expanded(
-        child: TextField(
-
-          controller: controller,
-          keyboardType: textInputType,
+       padding: const EdgeInsets.all(8.0),
+       child: TextField(
+         maxLines: null, // Set to null or 0 to allow text to wrap to the next line
+         controller: controller,
+         keyboardType: textInputType,
 
 
-          decoration: InputDecoration(
-              labelText: title,
-              focusedBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black, width: 0.5),
-              ),
-              enabledBorder: const OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.black, width: 0.5),
-              ),
-              border: const OutlineInputBorder(),
-              counterText: '',
-              hintStyle: const TextStyle(color: Colors.black, fontSize: 14.0)),
-        ),
-      ),
-    );
+         decoration: InputDecoration(
+             labelText: title,
+             focusedBorder: const OutlineInputBorder(
+               borderSide: BorderSide(color: Colors.black, width: 0.5),
+             ),
+             enabledBorder: const OutlineInputBorder(
+               borderSide: BorderSide(color: Colors.black, width: 0.5),
+             ),
+             border: const OutlineInputBorder(),
+             counterText: '',
+             hintStyle: const TextStyle(color: Colors.black, fontSize: 14.0)),
+       ),
+     );
 }
 
 

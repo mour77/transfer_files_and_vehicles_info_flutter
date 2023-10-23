@@ -76,8 +76,12 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
             child:
             Row(
               children: [
-                 Image.asset('assets/' + data['logoLocalPath']),
-                const SizedBox(width: 20,),
+
+                Image.asset('assets/' + data['logoLocalPath'],
+                 // opacity: const AlwaysStoppedAnimation(.5),
+
+                ),
+                //const SizedBox(width: 20,),
                 Text(v.data.brand),
               ],
             ),
@@ -472,7 +476,7 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
 
                 Row(
                   children: [
-                    Icon(Icons.edit_calendar_rounded ,  color:  Colors.lightBlue[800]),
+                    Icon(Icons.next_week_outlined ,  color:  Colors.lightBlue[800]),
                     const SizedBox(width: 20),
                     Text(historyDataMap['nextOdometer'].toString()) ,
                   ],
