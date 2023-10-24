@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
@@ -95,3 +96,8 @@ int toInt(String number){
     String formatted = formatter.format(now);
     return formatted;
   }
+
+
+Future<String> loadAssetFile(String path) async {
+  return await rootBundle.loadString(path);
+}

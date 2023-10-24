@@ -5,14 +5,18 @@ import 'package:transfer_files_and_vehicles_info_flutter/my_entities/utils.dart'
 
 
 
-Future<void> updateDocument(String collectionName, String documentId , Map<String, dynamic> map) async {
+Future<void> updateDocument(String collectionName, String documentId , Map<String, dynamic> map ,{bool showToastMsg = true} ) async {
   try{
     final CollectionReference collection =
     FirebaseFirestore.instance.collection(collectionName);
 
     // Update the field 'field_to_update' to a new value
     await collection.doc(documentId).update(map);
-    showMsg("updated");
+
+    if (showToastMsg){
+      showMsg("updated");
+    }
+
 
   }
   catch(error){
@@ -22,7 +26,8 @@ Future<void> updateDocument(String collectionName, String documentId , Map<Strin
 }
 
 
-Future<void> addDocument(String collectionName,  Map<String, dynamic> map) async {
+
+Future<void> addDocument(String collectionName,  Map<String, dynamic> map ) async {
   try{
 
     // Update the field 'field_to_update' to a new value
@@ -42,14 +47,21 @@ Future<void> addDocument(String collectionName,  Map<String, dynamic> map) async
 
 
 
-Future<void> deleteDocument(String collectionName, String documentId) async {
+Future<void> deleteDocument(String collectionName, String documentId , {bool showToastMsg = true , Future<void> Function()? runMethod}) async {
   try{
     final CollectionReference collection =
     FirebaseFirestore.instance.collection(collectionName);
 
     // Delete the document with the specified document ID
     await collection.doc(documentId).delete();
-    showMsg("Deleted");
+    if(showToastMsg) {
+      showMsg("Deleted");
+    }
+
+    if (runMethod != null){
+      runMethod();
+    }
+
   }
   catch(error){
     showMsg(error.toString());

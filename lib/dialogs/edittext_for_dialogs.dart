@@ -1,6 +1,8 @@
 
 
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/my_entities/gas_types.dart';
 
 Widget getEdittext(String title, TextEditingController controller ,
     {TextInputType textInputType = TextInputType.text} ){
@@ -28,6 +30,8 @@ Widget getEdittext(String title, TextEditingController controller ,
        ),
      );
 }
+
+
 
 
 

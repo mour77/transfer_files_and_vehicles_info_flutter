@@ -60,10 +60,10 @@ class TargetsScreenState extends State<TargetsScreen> {
   initialize() async {
 
     print('usrid ' + userID);
+    _someDataLoadingFuture = downloadTargets();
 
-   // _someDataLoadingFuture = downloadTargets();
 
-    downloadTargets().then((value) => setRemainingCost());
+   // downloadTargets().then((value) => setRemainingCost());
   }
 
 
@@ -73,10 +73,11 @@ class TargetsScreenState extends State<TargetsScreen> {
 
   Future<void> downloadTargets() async {
 
+
     QuerySnapshot  snapshot  = await
     FirebaseFirestore.instance.collection('Targets').where("uid", isEqualTo: userID).get();
 
-    setState(() {
+
       targetItems.clear();
       // print('megethos ${snapshot.size}');
 
@@ -84,7 +85,6 @@ class TargetsScreenState extends State<TargetsScreen> {
         String targetID = document.id;
         Map<String, dynamic> data = document.data() as Map<String, dynamic>;
         data['id'] = targetID;
-        _remainingCostController.text = data['remaining_cost'].toString();
 
         final Targets v = Targets.fromJson(data);
         targetItems.add(
@@ -99,6 +99,12 @@ class TargetsScreenState extends State<TargetsScreen> {
           ),
         );
 
+
+
+        //print(targetItems);
+      }
+
+      setState(() {
         if(targetItems.isNotEmpty){
           selectedTarget = targetItems[0].value;
           totalCostOfSelectedTarget = double.parse(targetItems[0].value!.data.totalCost);
@@ -106,20 +112,51 @@ class TargetsScreenState extends State<TargetsScreen> {
           saveString(selectTargetID, targetID);
 
         }
-
-        //print(targetItems);
-      }
-    });
+      });
 
 
 
-    await setRemainingCost();
+
+   // await getRemainingCost();
 
 
   }
 
 
-  Future<void> setRemainingCost() async {
+
+  Future<void> getRemainingCost () async {
+
+    await FirebaseFirestore.instance.collection('Targets').where(FieldPath.documentId, isEqualTo: targetID).get()
+        .then((value) {
+      if (value.docs.isNotEmpty) {
+        var remCost = value.docs.first['remaining_cost'];
+        if(remCost is int){
+          _remainingCostController.text =  double.parse(remCost.toString()).toString();
+        }
+        else{
+          _remainingCostController.text = remCost.toString();
+        }
+
+        if (targetItems.isNotEmpty){
+          for (var element in targetItems) {
+            if (element.value!.data.id == targetID){
+                element.value!.data.remainingCost = _remainingCostController.text;
+                return;
+            }
+          }
+        }
+      }
+
+    });
+
+
+
+  }
+
+
+
+
+  Future<void> updateRemainingCost() async {
     QuerySnapshot  snapshot  = await
     FirebaseFirestore.instance.collection('Movements').where("targetID", isEqualTo: targetID).get();
 
@@ -138,9 +175,19 @@ class TargetsScreenState extends State<TargetsScreen> {
         //print(targetItems);
       }
 
-      print(tempTotalCost);
-      print(totalCostOfSelectedTarget);
-      _remainingCostController.text = (totalCostOfSelectedTarget - tempTotalCost).toString();
+
+     // print(tempTotalCost);
+     // print(totalCostOfSelectedTarget);
+     // _remainingCostController.text = (totalCostOfSelectedTarget - tempTotalCost).toString();
+
+      if(snapshot.docs.isNotEmpty){
+        Map<String, dynamic> map = {
+          "remaining_cost" : totalCostOfSelectedTarget - tempTotalCost
+        };
+        print(targetID);
+
+        updateDocument("Targets", targetID, map , showToastMsg: false).then((value) => getRemainingCost());
+      }
 
 
     });
@@ -194,7 +241,7 @@ class TargetsScreenState extends State<TargetsScreen> {
               heroTag: null,
               child: const Icon(Icons.app_registration_rounded),
               onPressed: () {
-                addMovement(context, targetID, );
+                addMovement(context, targetID, updateRemainingCost);
               },
 
             ),
@@ -230,15 +277,15 @@ class TargetsScreenState extends State<TargetsScreen> {
                       onChanged: (value) {
                         // Handle the selected categoryID
                         setState(() {
+                          
                           _remainingCostController.text = value!.data.remainingCost.toString();
                           totalCostOfSelectedTarget = double.parse(value.data.totalCost);
-                          print("totalCostOfSelectedTarget " + totalCostOfSelectedTarget.toString());
+                          print("totalCostOfSelectedTarget $totalCostOfSelectedTarget");
 
                           selectedTarget = value;
                           targetID = value.data.id;
                           print(targetID);
-                          setRemainingCost();
-
+                          
                           saveString(selectTargetID, targetID);
 
                         });
@@ -289,98 +336,106 @@ class TargetsScreenState extends State<TargetsScreen> {
               child:
 
 
-              StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('Movements')
-                    .where('targetID', isEqualTo: targetID) // Add your where clause here
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const CircularProgressIndicator();
-                  }
-
-                  return ListView(
-                    children: snapshot.data!.docs.map((document) {
-                      Map<String, dynamic>? data = document.data() as Map<String, dynamic>?;
-                      String movementID = document.id;
-                      String title = data?['title'];
+              FutureBuilder(
+                future: _someDataLoadingFuture,
+                builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
 
 
-                      return
+                    return
+                      StreamBuilder<QuerySnapshot>(
+                      stream: FirebaseFirestore.instance
+                          .collection('Movements')
+                          .where('targetID', isEqualTo: targetID) // Add your where clause here
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
 
-                        Card(
-                            margin: const EdgeInsets.only(right: 22, left: 22, top: 18, bottom: 12),
-                            color: Colors.grey[200],
+                          return const CircularProgressIndicator();
+                        }
 
-
-                            child:
-                            ListTile(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                             // leading:
-                             // Container(
-                              //   padding: const EdgeInsets.only(right: 3.0),
-                              //   decoration:  const BoxDecoration(
-                              //       border:  Border(
-                              //           right:  BorderSide( color: Colors.white24))),
-                              //     child:  Icon(Icons.arrow_upward_outlined , color: Colors.green[500] ,)
-                              //
-                              //
-                              // ),
-
-                              title: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                                children: <Widget>[
-
-                                  const Padding(
-                                    padding: EdgeInsets.only(left: 12.0),
-                                    child: Icon(Icons.text_snippet , color: Colors.blue ,),
-                                  ),
-                                  Expanded(child:
-
-                                  Padding(
-                                    padding: const EdgeInsets.only(left:20.0 ),
-                                    child: Text(
-                                      title, style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),),
-                                  )
-                                  ),
+                        return ListView(
+                          children: snapshot.data!.docs.map((document) {
+                            Map<String, dynamic>? data = document.data() as Map<String, dynamic>?;
+                            String movementID = document.id;
+                            String title = data?['title'];
 
 
-                                  Row(
-                                    children: [
+                            return
 
-                                      IconButton(
-                                        icon: const Icon(Icons.edit) ,
-                                        color:  Colors.lightBlue,
-                                        onPressed: () {
-                                          setState(() {
-                                            isEditPressed = !isEditPressed;
-                                            editMovement(context, movementID, data , setRemainingCost);
-
-                                          });
-
-                                        },
-                                      ),
-
-                                      IconButton(icon:  const Icon(Icons.clear) ,  color:  Colors.red[800],
-
-                                        onPressed: () {
-                                          setState(() {
-                                            isDeletePressed = !isDeletePressed;
-                                          });
-                                          deleteDocument("Movements", movementID);
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                              Card(
+                                  margin: const EdgeInsets.only(right: 22, left: 22, top: 18, bottom: 12),
+                                  color: Colors.grey[200],
 
 
+                                  child:
+                                  ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+                                    // leading:
+                                    // Container(
+                                    //   padding: const EdgeInsets.only(right: 3.0),
+                                    //   decoration:  const BoxDecoration(
+                                    //       border:  Border(
+                                    //           right:  BorderSide( color: Colors.white24))),
+                                    //     child:  Icon(Icons.arrow_upward_outlined , color: Colors.green[500] ,)
+                                    //
+                                    //
+                                    // ),
+
+                                    title: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                                      children: <Widget>[
+
+                                        const Padding(
+                                          padding: EdgeInsets.only(left: 12.0),
+                                          child: Icon(Icons.text_snippet , color: Colors.blue ,),
+                                        ),
+                                        Expanded(child:
+
+                                        Padding(
+                                          padding: const EdgeInsets.only(left:20.0 ),
+                                          child: Text(
+                                            title, style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),),
+                                        )
+                                        ),
 
 
-                              subtitle:
-                                Padding(
+                                        Row(
+                                          children: [
+
+                                            IconButton(
+                                              icon: const Icon(Icons.edit) ,
+                                              color:  Colors.lightBlue,
+                                              onPressed: () {
+                                                setState(() {
+                                                  isEditPressed = !isEditPressed;
+                                                  editMovement(context, movementID, data , updateRemainingCost);
+
+                                                });
+
+                                              },
+                                            ),
+
+                                            IconButton(icon:  const Icon(Icons.clear) ,  color:  Colors.red[800],
+
+                                              onPressed: () {
+                                                setState(() {
+                                                  isDeletePressed = !isDeletePressed;
+                                                });
+                                                deleteDocument("Movements", movementID, runMethod: updateRemainingCost );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+
+
+
+
+                                    subtitle:
+                                    Padding(
                                       padding: const EdgeInsets.all(12.0),
                                       child: Row(children: [
                                         Icon(Icons.euro ,  color:  Colors.yellow[800]),
@@ -388,27 +443,41 @@ class TargetsScreenState extends State<TargetsScreen> {
                                         Text(data!['cost'].toString(), style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),),
                                       ],
 
-                                  ),
-                                ),
+                                      ),
+                                    ),
+
+
+                                    onTap: ()  async {
+
+                                      print("Selected categoryID: $title");
+                                    },
 
 
 
-
-
-                              onTap: ()  async {
-
-                                print("Selected categoryID: $title");
-                              },
-
-
-
-                              //trailing: Icon(Icons.keyboard_arrow_right, color: Colors.red, size: 30.0)
-                            )
+                                    //trailing: Icon(Icons.keyboard_arrow_right, color: Colors.red, size: 30.0)
+                                  )
+                              );
+                          }).toList(),
                         );
-                    }).toList(),
-                  );
-                },
+                      },
+                    );
+
+
+
+
+                  }
+                  else{
+                    return const CircularProgressIndicator();
+                  }
+                  return const CircularProgressIndicator();
+                }
+
+
+
+
+
               ),
+
             ),
 
 

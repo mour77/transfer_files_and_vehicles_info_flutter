@@ -11,6 +11,12 @@ class Vehicles{
   Vehicles.fromJson(Map<String, dynamic> json) {
     data = ( VehiclesInfo.fromJson(json) );
   }
+
+  Vehicles.forDropDown(String brand , String logoPath) {
+    data = ( VehiclesInfo.forDropDown( brand: brand , logoPath: logoPath) );
+  }
+
+
 }
 
 
@@ -25,6 +31,7 @@ class VehiclesInfo{
   brandIDStr = '';
 
   String userID;
+  String logoPath = '';
 
   int capacity, hp, kivika,year;
 
@@ -38,6 +45,12 @@ class VehiclesInfo{
     required this.year,
     required this.userID
   });
+
+
+  VehiclesInfo.forDropDown({required this.brand, required this.logoPath,
+    this.id = '', this.model = '' ,
+    this.capacity = -1, this.hp = -1, this.kivika = -1,
+    this.year = -1, this.userID = ''});
 
 
 

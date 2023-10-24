@@ -11,8 +11,8 @@ import '../my_entities/utils.dart';
 
 
 
-void addMovement(BuildContext context, String targetID){
-  showMovementDialog(context , targetID: targetID);
+void addMovement(BuildContext context, String targetID , [Future<void> Function()? runMethod]){
+  showMovementDialog(context , targetID: targetID , runMethod: runMethod);
 }
 
 Future<void> editMovement(BuildContext context, String? movementID, Map<String, dynamic>? dataMap, [Future<void> Function()? runMethod] ) async {
@@ -101,10 +101,7 @@ void showMovementDialog(BuildContext context,  {String? targetID , String? movem
     },
   ).then((value)  {
 
-
-    print('skata');
     if(runMethod != null){
-      print('mpika runmethod');
       runMethod();
     }
   });

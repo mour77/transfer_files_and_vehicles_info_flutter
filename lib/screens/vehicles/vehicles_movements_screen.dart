@@ -77,14 +77,18 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
             Row(
               children: [
 
-                Image.asset('assets/' + data['logoLocalPath'],
-                 // opacity: const AlwaysStoppedAnimation(.5),
-
+                SizedBox(width: 32, height: 58,
+                  child: Image.asset('assets/' + data['logoLocalPath'],
+                  ),
                 ),
                 //const SizedBox(width: 20,),
-                Text(v.data.brand),
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(v.data.brand , style: const TextStyle( fontSize: 18),),
+                ),
               ],
             ),
+
           ),
         );
 
@@ -151,7 +155,7 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
               heroTag: null,
               child: const Icon(Icons.add),
               onPressed: () {
-                showVehicleDialog(context, true);
+                addVehicle(context, runMethod: downloadVehicles);
               },
 
             ),
@@ -188,25 +192,27 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
 
              Padding(
               padding: const EdgeInsets.all(20.0),
-              child: DropdownButtonFormField2<Vehicles>(
+              child:
+              DropdownButtonFormField2<Vehicles>(
                 items: vehiclesItems,
                 value: selectedVehicle,
-
                 onChanged: (value) {
-                  // Handle the selected categoryID
+
                   setState(() {
                     selectedVehicle = value;
                     vehicleID = value!.data.id;
                     saveString(selectVehicleID, vehicleID);
-
                   });
                 },
+
                 decoration: const InputDecoration(
                   labelText: 'Select a vehicle',
                   border: OutlineInputBorder(),
 
                 ),
+
               ),
+
             ),
         //  },
      //   ),
