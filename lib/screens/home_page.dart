@@ -47,11 +47,15 @@ class _HomePageState extends State<HomePage> {
 
   initialize() async{
     int id = await getSelectedFirstScreen();
-    if(id == SelectFirstScreen.transferFiles.id) {
-      _selectedIndex = 0;
-    } else {
-      _selectedIndex = 1;
-    }
+
+    setState(() {
+      if(id == SelectFirstScreen.transferFiles.id) {
+        _selectedIndex = 0;
+      } else {
+        _selectedIndex = 1;
+      }
+    });
+
 
 
     await Firebase.initializeApp(

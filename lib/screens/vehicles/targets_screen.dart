@@ -5,12 +5,11 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:transfer_files_and_vehicles_info_flutter/dialogs/add_movements.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/dialogs/vehicles/add_movements.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/firebase/firebase_methods.dart';
 
-import '../../dialogs/add_gas_dialog.dart';
-import '../../dialogs/add_target_dialog.dart';
-import '../../dialogs/add_vehicle_dialog.dart';
+import '../../dialogs/vehicles/add_gas_dialog.dart';
+import '../../dialogs/vehicles/add_target_dialog.dart';
 import '../../my_entities/utils.dart';
 import '../../my_entities/Targets.dart';
 import '../../shared_preferences.dart';
@@ -73,6 +72,7 @@ class TargetsScreenState extends State<TargetsScreen> {
 
   Future<void> downloadTargets() async {
 
+    print('mpika download');
 
     QuerySnapshot  snapshot  = await
     FirebaseFirestore.instance.collection('Targets').where("uid", isEqualTo: userID).get();
@@ -111,6 +111,7 @@ class TargetsScreenState extends State<TargetsScreen> {
           targetID = selectedTarget!.data.id;
           saveString(selectTargetID, targetID);
 
+          getRemainingCost();
         }
       });
 
@@ -200,6 +201,10 @@ class TargetsScreenState extends State<TargetsScreen> {
 
 
 
+  Future<void> DownloadTargetsAndUpdateRemainingCost() async {
+    downloadTargets().then((value) => updateRemainingCost());
+  }
+
   @override
   Widget build(BuildContext context) {
 
@@ -270,30 +275,38 @@ class TargetsScreenState extends State<TargetsScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(20.0),
                     child:
-                    DropdownButtonFormField2<Targets>(
-                      items: targetItems,
-                      value: selectedTarget,
+                    GestureDetector(
 
-                      onChanged: (value) {
-                        // Handle the selected categoryID
-                        setState(() {
-                          
-                          _remainingCostController.text = value!.data.remainingCost.toString();
-                          totalCostOfSelectedTarget = double.parse(value.data.totalCost);
-                          print("totalCostOfSelectedTarget $totalCostOfSelectedTarget");
-
-                          selectedTarget = value;
-                          targetID = value.data.id;
-                          print(targetID);
-                          
-                          saveString(selectTargetID, targetID);
-
-                        });
+                      onLongPress: (){
+                        editTarget(context, targetID, selectedTarget!.data.toJson(), runMethod: DownloadTargetsAndUpdateRemainingCost );
                       },
-                      decoration: const InputDecoration(
-                        labelText: 'Select target',
-                        border: OutlineInputBorder(),
 
+                      child: DropdownButtonFormField2<Targets>(
+                        items: targetItems,
+                        value: selectedTarget,
+
+
+                        onChanged: (value) {
+                          // Handle the selected categoryID
+                          setState(() {
+
+                            _remainingCostController.text = value!.data.remainingCost.toString();
+                            totalCostOfSelectedTarget = double.parse(value.data.totalCost);
+                            print("totalCostOfSelectedTarget $totalCostOfSelectedTarget");
+
+                            selectedTarget = value;
+                            targetID = value.data.id;
+                            print(targetID);
+
+                            saveString(selectTargetID, targetID);
+
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Select target',
+                          border: OutlineInputBorder(),
+
+                        ),
                       ),
                     ),
                   ),
@@ -346,7 +359,8 @@ class TargetsScreenState extends State<TargetsScreen> {
                       StreamBuilder<QuerySnapshot>(
                       stream: FirebaseFirestore.instance
                           .collection('Movements')
-                          .where('targetID', isEqualTo: targetID) // Add your where clause here
+                          .where('targetID', isEqualTo: targetID) 
+                          .orderBy("date", descending: true)// Add your where clause here
                           .snapshots(),
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
@@ -369,6 +383,7 @@ class TargetsScreenState extends State<TargetsScreen> {
 
 
                                   child:
+
                                   ListTile(
                                     contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
                                     // leading:
@@ -437,10 +452,31 @@ class TargetsScreenState extends State<TargetsScreen> {
                                     subtitle:
                                     Padding(
                                       padding: const EdgeInsets.all(12.0),
-                                      child: Row(children: [
-                                        Icon(Icons.euro ,  color:  Colors.yellow[800]),
-                                        const SizedBox(width: 20,),
-                                        Text(data!['cost'].toString(), style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                                        children: [
+
+                                          Row(
+                                            children: [
+                                              Icon(Icons.euro ,  color:  Colors.yellow[800]),
+                                              const SizedBox(width: 20,),
+                                              Text(data!['cost'].toString(), style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),),
+                                            ],
+                                          ),
+
+
+                                          Row(
+                                          children: [
+                                            Icon(Icons.date_range_outlined ,  color:  Colors.lightBlue[800]),
+                                            const SizedBox(width: 20,),
+                                            Text(convertTimestampToDateStr(data!['date']),
+                                              style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),),
+                                          ],
+                                        ),
+
+
+
                                       ],
 
                                       ),

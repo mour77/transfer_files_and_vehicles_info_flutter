@@ -1,29 +1,30 @@
 
 
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/dialogs/edittext_for_dialogs.dart';
 
-import '../firebase/firebase_methods.dart';
-import '../my_entities/utils.dart';
+import '../../firebase/firebase_methods.dart';
+import '../../my_entities/utils.dart';
 
 
 
-void addMovement(BuildContext context, String targetID , [Future<void> Function()? runMethod]){
-  showMovementDialog(context , targetID: targetID , runMethod: runMethod);
+void addTarget(BuildContext context){
+  showTargetDialog(context );
 }
 
-Future<void> editMovement(BuildContext context, String? movementID, Map<String, dynamic>? dataMap, [Future<void> Function()? runMethod] ) async {
-  showMovementDialog(context , movementID: movementID, dataMap: dataMap, runMethod: runMethod);
+void editTarget(BuildContext context, String? targetID, Map<String, dynamic>? dataMap, { Future<void> Function()? runMethod} ){
+  showTargetDialog(context , targetID: targetID, dataMap: dataMap, runMethod: runMethod);
 }
 
 
-void showMovementDialog(BuildContext context,  {String? targetID , String? movementID, Map<String, dynamic>? dataMap, Future<void> Function()? runMethod}) {
+void showTargetDialog(BuildContext context,  {String? targetID, Map<String, dynamic>? dataMap, Future<void> Function()? runMethod}) {
 
 
-  print(movementID);
 
   TextEditingController titleController = TextEditingController();
   TextEditingController moneyController = TextEditingController();
@@ -33,7 +34,7 @@ void showMovementDialog(BuildContext context,  {String? targetID , String? movem
   if(dataMap != null && dataMap.isNotEmpty){
 
     titleController.text = dataMap['title'].toString();
-    moneyController.text = dataMap['cost'].toString();
+    moneyController.text = dataMap['total_cost'].toString();
     dateController.text = convertTimestampToDateStr( dataMap['date']);
   }
   else{
@@ -41,30 +42,35 @@ void showMovementDialog(BuildContext context,  {String? targetID , String? movem
   }
 
 
-  Future<void> saveMovement() async {
+  Future<void> saveTarget() async {
 
-    //String userID = FirebaseAuth.instance.currentUser!.uid;
+    String userID = FirebaseAuth.instance.currentUser!.uid;
 
     Map<String, dynamic> valuesMap = {
       'title': titleController.text,
-      'cost': toInt(moneyController.text),
+      'total_cost': double.parse(moneyController.text),
       'date': convertDateStrToTimestamp(dateController.text),
+      'uid': userID,
     };
 
-    if( targetID != null && targetID.isNotEmpty){
-      valuesMap['targetID'] = targetID;
+    if(dataMap == null || dataMap.isEmpty){
+      valuesMap ['remaining_cost'] = double.parse(moneyController.text);
     }
+
+
+
 
 
     if(dataMap != null && dataMap.isNotEmpty){
-      updateDocument("Movements" , movementID!, valuesMap);
+      updateDocument("Targets" , targetID!, valuesMap);
     }
     else{
-      addDocument("Movements", valuesMap);
+      addDocument("Targets", valuesMap);
     }
 
 
     Navigator.of(context).pop();
+
 
 
 
@@ -76,13 +82,13 @@ void showMovementDialog(BuildContext context,  {String? targetID , String? movem
     builder: (BuildContext context) {
       // Create a custom widget for the dialog content
       return AlertDialog(
-        title:  Text(dataMap == null || dataMap.isEmpty ? 'Add Movement' : 'Edit Movement'),
+        title:  Text(dataMap == null || dataMap.isEmpty ? 'Add Target' : 'Edit Target'),
         content:  Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
 
             getEdittext("Title", titleController),
-            getEdittext("Cost", moneyController , textInputType: TextInputType.number),
+            getEdittext("Total cost", moneyController , textInputType: TextInputType.number),
             getEdittextDatePicker("Date", dateController , context),
 
 
@@ -91,7 +97,11 @@ void showMovementDialog(BuildContext context,  {String? targetID , String? movem
         actions: <Widget>[
           ElevatedButton(
             onPressed: () {
-              saveMovement();
+              saveTarget().then((value) {
+                if(runMethod != null) {
+                  runMethod();
+                }
+              });
 
             },
             child: const Text('OK'),
@@ -99,12 +109,7 @@ void showMovementDialog(BuildContext context,  {String? targetID , String? movem
         ],
       );
     },
-  ).then((value)  {
-
-    if(runMethod != null){
-      runMethod();
-    }
-  });
+  );
 
 
 

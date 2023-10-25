@@ -6,8 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/dialogs/edittext_for_dialogs.dart';
 
-import '../firebase/firebase_methods.dart';
-import '../my_entities/utils.dart';
+import '../../firebase/firebase_methods.dart';
+import '../../my_entities/utils.dart';
 
 
 

@@ -5,12 +5,12 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:transfer_files_and_vehicles_info_flutter/dialogs/add_repair_dialog.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/dialogs/vehicles/add_repair_dialog.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/firebase/firebase_methods.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/shared_preferences.dart';
 
-import '../../dialogs/add_gas_dialog.dart';
-import '../../dialogs/add_vehicle_dialog.dart';
+import '../../dialogs/vehicles/add_gas_dialog.dart';
+import '../../dialogs/vehicles/add_vehicle_dialog.dart';
 import '../../my_entities/utils.dart';
 import '../../my_entities/vehicles.dart';
 
@@ -59,6 +59,7 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
 
 
   Future<void> downloadVehicles() async {
+    print('userid ' + userID);
     QuerySnapshot  snapshot  = await
     FirebaseFirestore.instance.collection('Vehicles').where("userID", isEqualTo: userID).get();
 
@@ -84,7 +85,8 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
                 //const SizedBox(width: 20,),
                 Padding(
                   padding: const EdgeInsets.only(left: 8.0),
-                  child: Text(v.data.brand , style: const TextStyle( fontSize: 18),),
+                  child: Text(v.data.brand + (v.data.model.isNotEmpty ? '   (${v.data.model})' : ''),
+                    style: const TextStyle( fontSize: 18),),
                 ),
               ],
             ),
@@ -193,24 +195,29 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
              Padding(
               padding: const EdgeInsets.all(20.0),
               child:
-              DropdownButtonFormField2<Vehicles>(
-                items: vehiclesItems,
-                value: selectedVehicle,
-                onChanged: (value) {
 
-                  setState(() {
-                    selectedVehicle = value;
-                    vehicleID = value!.data.id;
-                    saveString(selectVehicleID, vehicleID);
-                  });
-                },
+              GestureDetector(
+                onLongPress: () {editVehicle(context , vehicleID, selectedVehicle?.data.toJson() , runMethod: downloadVehicles); }
+                ,
+                child: DropdownButtonFormField2<Vehicles>(
+                  items: vehiclesItems,
+                  value: selectedVehicle,
+                  onChanged: (value) {
 
-                decoration: const InputDecoration(
-                  labelText: 'Select a vehicle',
-                  border: OutlineInputBorder(),
+                    setState(() {
+                      selectedVehicle = value;
+                      vehicleID = value!.data.id;
+                      saveString(selectVehicleID, vehicleID);
+                    });
+                  },
+
+                  decoration: const InputDecoration(
+                    labelText: 'Select a vehicle',
+                    border: OutlineInputBorder(),
+
+                  ),
 
                 ),
-
               ),
 
             ),
@@ -226,7 +233,8 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
           child: StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('History')
-                .where('vehicleID', isEqualTo: vehicleID) // Add your where clause here
+                .where('vehicleID', isEqualTo: vehicleID)
+                .orderBy("date", descending: true)// Add your where clause here
                 .snapshots(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {

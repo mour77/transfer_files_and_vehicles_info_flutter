@@ -44,7 +44,6 @@ void openSelectedFile(String? fileName, String? fileExt ,String filePath, BuildC
 
 
 
-  print('xaxaxaxaxa ' + lista[0].fileData);
 
 
   Uint8List bytes = base64.decode(lista[0].fileData);

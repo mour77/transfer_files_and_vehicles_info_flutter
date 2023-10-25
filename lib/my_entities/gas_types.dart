@@ -2,6 +2,7 @@
 
 enum GasTypes {
 
+
   oil(id: 1, text: "Oil"),
   diesel(id: 2, text: "Diesel");
 

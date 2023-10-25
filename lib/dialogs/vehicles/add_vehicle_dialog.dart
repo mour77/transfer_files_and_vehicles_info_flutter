@@ -11,9 +11,11 @@ import 'package:flutter/services.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/dialogs/edittext_for_dialogs.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/vehicles.dart';
 
-import '../firebase/firebase_methods.dart';
-import '../my_entities/gas_types.dart';
-import '../my_entities/utils.dart';
+import '../../firebase/firebase_methods.dart';
+import '../../my_entities/gas_types.dart';
+import '../../my_entities/utils.dart';
+
+
 
 
 
@@ -47,7 +49,8 @@ void showVehicleDialog(BuildContext context, {String? vehicleID , Map<String, dy
 
 
   if(dataMap != null && dataMap.isNotEmpty){
-    Vehicles v = Vehicles.forDropDown(dataMap['brand'].toString(), dataMap['logoLocalPath'].toString());
+
+    Vehicles v = Vehicles.fromJson(dataMap);
     selectedBrandNotifier.value = v;
 
     int gasTypeID = dataMap['gasTypeID'];
@@ -88,7 +91,7 @@ void showVehicleDialog(BuildContext context, {String? vehicleID , Map<String, dy
 
     try {
 
-      if(selectedBrandNotifier.value == null){
+      if(selectedBrandNotifier.value == null || selectedBrandNotifier.value!.data.brand.isEmpty ){
         showMsg('Select brand');
         return;
       }
@@ -109,7 +112,7 @@ void showVehicleDialog(BuildContext context, {String? vehicleID , Map<String, dy
         'year': toInt(yearController.text),
         'plateID': pinakidaController.text,
         'gasTypeID': selectedGasTypeNotifier.value?.id,
-        'gasTypeIDStr': selectedGasTypeNotifier.value?.text,
+        'gasTypeStr': selectedGasTypeNotifier.value?.text,
         'capacity': toInt(xoritikotitaController.text),
         'arithmos_kikloforias': arKikloforiasController.text,
         'vin': arPlaisiouController.text,
@@ -173,7 +176,13 @@ void showVehicleDialog(BuildContext context, {String? vehicleID , Map<String, dy
         actions: <Widget>[
           ElevatedButton(
             onPressed: () {
-              saveVehicle();
+              saveVehicle()
+                  .then((value)  {
+                if(runMethod != null){
+                  runMethod();
+                }
+                }
+              );
 
 
             },
@@ -182,11 +191,14 @@ void showVehicleDialog(BuildContext context, {String? vehicleID , Map<String, dy
         ],
       );
     },
-  ).then((value)  {
-    if(runMethod != null){
-      runMethod();
-    }
-  });
+  )
+  //     .then((value)  {
+  //   if(runMethod != null){
+  //     runMethod();
+  //   }
+  // }
+  // )
+  ;
 
 
 
@@ -201,8 +213,7 @@ void showVehicleDialog(BuildContext context, {String? vehicleID , Map<String, dy
 
 Widget getBrandDropDownList(ValueNotifier<Vehicles?> selectedBrandNotifier)  {
 
-
-
+  Vehicles? selectedBrand = selectedBrandNotifier.value;
 
   return
     FutureBuilder<List<Vehicles>>(
@@ -216,14 +227,29 @@ Widget getBrandDropDownList(ValueNotifier<Vehicles?> selectedBrandNotifier)  {
           final vehicles = snapshot.data;
 
           if (vehicles != null) {
+
+            Vehicles selectedVehicle  = snapshot.data!.first;
+            selectedBrandNotifier.value ??= selectedVehicle;
+
+            if(selectedBrandNotifier.value != null && selectedBrandNotifier.value!.data.brand.isNotEmpty ){
+              for (var element in vehicles) {
+                if(element.data.brand == selectedBrandNotifier.value!.data.brand){
+                  selectedVehicle = element;
+                  break;
+                }
+              }}
+            //  hi 5500 fire mage
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   DropdownButtonFormField2<Vehicles>(
+
+                    value:  selectedVehicle,
+
                     decoration: const InputDecoration(
-                        labelText: 'select a brand',
+                        labelText: 'select brand',
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.black, width: 0.5),
                         ),
@@ -289,7 +315,7 @@ Future<List<Vehicles>> getBrands () async {
 
 
 Widget getGasDropDownList(ValueNotifier<GasTypes?> selectedGasTypeNotifier){
-  GasTypes? selectedGasType;
+  GasTypes? selectedGasType = selectedGasTypeNotifier.value;
 
   return
     Padding(
