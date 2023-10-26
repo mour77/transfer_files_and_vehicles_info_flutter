@@ -1,3 +1,6 @@
+
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -6,6 +9,7 @@ import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/File.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/http_methods.dart';
 
+import '../../dialogs/play_sound_dialog.dart';
 import '../../file_manager.dart';
 import '../../my_entities/utils.dart';
 
@@ -177,7 +181,21 @@ class DownloadScreenState extends State<DownloadScreen> {
 
                       onTap: (){
                       if(file.ext.isNotEmpty) {
-                        openSelectedFile(file.name, file.ext, file.path, context);
+                        print(file.path);
+                        String fileName = '${file.name}.${file.ext}';
+                        File f = File('storage/emulated/0/Music/$fileName');
+                        if (f.existsSync()) {
+                         // playMusic('${file.name}.${file.ext}');
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return MusicPlayerDialog('storage/emulated/0/Music/$fileName' , fileName);
+                            },
+                          );
+                        }
+                        else{
+                          downloadAndOpenSelectedFile(file.name, file.ext, file.path, context);
+                        }
 
                         return;
                       }

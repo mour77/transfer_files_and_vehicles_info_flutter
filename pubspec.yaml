@@ -43,6 +43,7 @@ dependencies:
   platform_device_id: ^1.0.1
   path_provider: 2.1.0
   photo_manager: 2.7.0
+  audioplayers: 5.2.0
   intl: ^0.18.1
   camera: 0.10.5+3 # Use the latest version
   image_picker: 1.0.4 # Use the latest version

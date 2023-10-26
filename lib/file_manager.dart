@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ import 'package:progress_dialog_null_safe/progress_dialog_null_safe.dart';
 
 import 'my_entities/fileDataJSON.dart';
 
-void openSelectedFile(String? fileName, String? fileExt ,String filePath, BuildContext context) async {
+void downloadAndOpenSelectedFile(String? fileName, String? fileExt ,String filePath, BuildContext context) async {
 
   ProgressDialog pr =  ProgressDialog(context,type: ProgressDialogType.download, isDismissible: true, showLogs: true);
   pr.style(
@@ -89,6 +90,8 @@ void openSelectedFile(String? fileName, String? fileExt ,String filePath, BuildC
 
       FilePickerResult? result = await FilePicker.platform.pickFiles();
       String? pathFile = temp.path;
+      print('skata     ' + temp.path.toString());
+
       if (result != null) {
         pathFile = result.files.single.path;
       }
@@ -148,5 +151,25 @@ Icon getIconForFile(String ext) {
 
   }
 
+
+}
+
+
+playMusic(String fileName) async {
+  print(fileName);
+  AudioPlayer audioPlayer = AudioPlayer();
+  String audioPath = '';
+  try {
+    final directory = await getExternalStorageDirectory();
+    if (directory != null) {
+      //audioPath = '${directory.path}/Music/soundtest.wav'; // Replace with the correct file name and extension
+      audioPath = 'storage/emulated/0/Music/$fileName'; // Replace with the correct file name and extension
+      //storage/emulated/0/Music/soundtest.wav
+    }
+  } catch (e) {
+    print('Error getting the storage directory: $e');
+  }
+
+  await audioPlayer.play(UrlSource(audioPath));
 
 }
