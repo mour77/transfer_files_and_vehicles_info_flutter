@@ -6,11 +6,16 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/dialogs/vehicles/add_repair_dialog.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/dialogs/vehicles/history_type_dialog.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/firebase/firebase_methods.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/my_entities/gas_types.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/my_entities/history_types.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/my_entities/order_types.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/shared_preferences.dart';
 
 import '../../dialogs/vehicles/add_gas_dialog.dart';
 import '../../dialogs/vehicles/add_vehicle_dialog.dart';
+import '../../dialogs/vehicles/order_type_dialog.dart';
 import '../../my_entities/utils.dart';
 import '../../my_entities/vehicles.dart';
 
@@ -31,8 +36,11 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
   List<DropdownMenuItem<Vehicles>> vehiclesItems = [];
 
   String vehicleID = "";
+  int historyTypeID = 0;
+  String orderBy = "date";
+  bool isDescending = true;
   Vehicles? selectedVehicle;
-
+  final _key = GlobalKey<ExpandableFabState>();
 
   final firestoreInstance = FirebaseFirestore.instance;
   String userID = FirebaseAuth.instance.currentUser!.uid;
@@ -41,7 +49,6 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
   @override
   initState() {
     super.initState();
-
     initialize();
   }
 
@@ -51,11 +58,8 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
 
   initialize() async {
 
-
     downloadVehicles();
   }
-
-
 
 
   Future<void> downloadVehicles() async {
@@ -114,6 +118,35 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
   }
 
 
+  void setCategory(HistoryTypes type){
+    setState(() {
+      historyTypeID = type.id;
+    });
+  }
+
+  void setOrderBy(OrderByTypes type , bool tempIsDescending){
+    setState(() {
+      orderBy = type.name;
+      isDescending = tempIsDescending;
+    });
+  }
+
+  Stream<QuerySnapshot<Object?>> getMovementsQuery(){
+    Query query = FirebaseFirestore.instance.collection('History').where('vehicleID', isEqualTo: vehicleID);
+    if (historyTypeID > 0) {
+      query = query.where('categoryID', isEqualTo: historyTypeID);
+    }
+    query = query.orderBy(orderBy, descending: isDescending);// Add your where clause here
+    return query.snapshots();
+
+  }
+
+
+  void closeOrOpenFab(){
+    final state = _key.currentState;
+    state?.toggle();
+  }
+
 
 
 
@@ -127,14 +160,21 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
 
         floatingActionButtonLocation: ExpandableFab.location,
 
-        floatingActionButton: ExpandableFab(
 
+
+        floatingActionButton:
+
+
+        ExpandableFab(
+          key: _key,
           openButtonBuilder: RotateFloatingActionButtonBuilder(
             child: const Icon(Icons.add),
             fabSize: ExpandableFabSize.regular,
             shape: const CircleBorder(),
+
           ),
 
+          distance: 180,
 
           overlayStyle: ExpandableFabOverlayStyle(blur: 5, ),
           onOpen: () {
@@ -145,6 +185,7 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
           },
           onClose: () {
             debugPrint('onClose');
+
           },
           afterClose: () {
             debugPrint('afterClose');
@@ -157,7 +198,10 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
               heroTag: null,
               child: const Icon(Icons.add),
               onPressed: () {
+
                 addVehicle(context, runMethod: downloadVehicles);
+                closeOrOpenFab();
+
               },
 
             ),
@@ -170,6 +214,8 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
                 setState(() {
                   addRepairHistory(context ,  vehicleID);
                 });
+                closeOrOpenFab();
+
               },
             ),
             FloatingActionButton.small(
@@ -181,9 +227,46 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
                 setState(() {
                   addGasHistory(context , vehicleID);
                 });
+                closeOrOpenFab();
 
               },
             ),
+
+            FloatingActionButton.small(
+              tooltip: 'filter ',
+              heroTag: null,
+              child: const Icon(Icons.filter_alt),
+              onPressed: () async {
+                HistoryTypes? type = await showHistoryTypesDialog(context);
+                if(type != null){
+                  setState(() {
+                    historyTypeID = type.id;
+                  });
+                }
+                closeOrOpenFab();
+
+              },
+            ),
+
+
+            FloatingActionButton.small(
+              tooltip: 'order by',
+              heroTag: null,
+              child: const Icon(Icons.sort),
+              onPressed: () async {
+                OrderByTypes? type = await showOrderTypesDialog(context);
+                if(type != null){
+                  setState(() {
+                    orderBy = type.name;
+                  });
+                  closeOrOpenFab();
+
+                }
+              },
+            ),
+
+
+
           ],
         ),
         body:
@@ -229,87 +312,84 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
 
 
 
-        Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('History')
-                .where('vehicleID', isEqualTo: vehicleID)
-                .orderBy("date", descending: true)// Add your where clause here
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const CircularProgressIndicator();
-              }
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
 
-                  return ListView(
-                    children: snapshot.data!.docs.map((document) {
-                      Map<String, dynamic>? data = document.data() as Map<String, dynamic>?;
-                      String historyID = document.id;
-                      String title ;
-                      int categoryID =  data?['categoryID'];
-                      if (data != null && data.containsKey('description')) {
-                        // Access the field
-                         title = data['description'];
-                      } else {
-                        title = 'Ανεφοδιασμός';
+              stream: getMovementsQuery(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const CircularProgressIndicator();
+                }
 
-                      }
+                return ListView(
+                      children: snapshot.data!.docs.map((document) {
+                        Map<String, dynamic>? data = document.data() as Map<String, dynamic>?;
+                        String historyID = document.id;
+                        String title ;
+                        int categoryID =  data?['categoryID'];
+                        if (data != null && data.containsKey('description')) {
+                          // Access the field
+                           title = data['description'];
+                        } else {
+                          title = 'Ανεφοδιασμός';
 
-                      return
+                        }
 
-                        Card(
-                          margin: const EdgeInsets.only(right: 22, left: 22, top: 18, bottom: 12),
-                            color: Colors.grey[200],
+                        return
+
+                          Card(
+                            margin: const EdgeInsets.only(right: 22, left: 22, top: 18, bottom: 12),
+                              color: Colors.grey[200],
 
 
-                          child:
-                            ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                            leading:
-                            Container(
-                              padding: const EdgeInsets.only(right: 3.0),
-                              decoration:  const BoxDecoration(
-                                  border:  Border(
-                                      right:  BorderSide( color: Colors.white24))),
-                              child: (categoryID == 1 ? const Icon(Icons.local_gas_station_outlined , color:  Colors.blue)
-                                  :  Icon(Icons.build_outlined , color: Colors.red[500] ,)
+                            child:
+                              ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+                              leading:
+                              Container(
+                                padding: const EdgeInsets.only(right: 3.0),
+                                decoration:  const BoxDecoration(
+                                    border:  Border(
+                                        right:  BorderSide( color: Colors.white24))),
+                                child: (categoryID == 1 ? const Icon(Icons.local_gas_station_outlined , color:  Colors.blue)
+                                    :  Icon(Icons.build_outlined , color: Colors.red[500] ,)
 
+                                ),
                               ),
-                            ),
 
-                            title: Row(
-                              children: <Widget>[
+                              title: Row(
+                                children: <Widget>[
 
-                                const SizedBox(width: 8), // Add spacing between the icon and text
-                                Text(title, style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),),
-                              ],
-                            ),
+                                  const SizedBox(width: 8), // Add spacing between the icon and text
+                                  Text(title, style: const TextStyle(color: Colors.black54, fontWeight: FontWeight.bold),),
+                                ],
+                              ),
 
-                            subtitle:
-                            getSubtitle(categoryID , data ),
-
-
-                            onTap: ()  async {
-
-                              // Handle the selected categoryID
-                              print("Selected categoryID: $title");
-                            },
+                              subtitle:
+                              getSubtitle(categoryID , data ),
 
 
+                              onTap: ()  async {
 
-                            onLongPress: (){
+                                // Handle the selected categoryID
+                                print("Selected categoryID: $title");
+                              },
 
-                              showListTileMenu(context,  historyID, data);
-                            },
 
-                              //trailing: Icon(Icons.keyboard_arrow_right, color: Colors.red, size: 30.0)
-                          )
-                          );
-                    }).toList(),
-                  );
-                },
+
+                              onLongPress: (){
+
+                                showListTileMenu(context,  historyID, data);
+                              },
+
+                                //trailing: Icon(Icons.keyboard_arrow_right, color: Colors.red, size: 30.0)
+                            )
+                            );
+                      }).toList(),
+                    );
+                  },
+                ),
               ),
-            ),
 
 
             ],
