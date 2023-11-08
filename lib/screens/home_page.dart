@@ -28,6 +28,8 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   String title = "";
   List<Widget> _screens = [];
+  DateTime? currentBackPressTime;
+
   static const TextStyle optionStyle =
   TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
   static const List<Widget> _widgetOptions = <Widget>[
@@ -100,75 +102,89 @@ class _HomePageState extends State<HomePage> {
 
     return
 
-      Scaffold(
-        appBar: AppBar(
-          title: Text(title),
-          actions: [
+      WillPopScope(
+        onWillPop: onWillPop,
+        child: Scaffold(
 
-            IconButton(
-              icon:  const Icon(Icons.logout),
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
-                ));
-              },
-            ),
-          ],
-        ),
-        body:
-        Center(
-          child: _widgetOptions[_selectedIndex],
-        ),
+          appBar: AppBar(
+            title: Text(title),
+            actions: [
 
-
-
-        drawer: Drawer(
-          // Add a ListView to the drawer. This ensures the user can scroll
-          // through the options in the drawer if there isn't enough vertical
-          // space to fit everything.
-          child: ListView(
-            // Important: Remove any padding from the ListView.
-            padding: EdgeInsets.zero,
-            children: [
-              const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                ),
-                child: Text('Drawer Header'),
-              ),
-
-
-              ListTile(
-                title: const Text('Transfer files'),
-                selected: _selectedIndex == 0,
-                onTap: () {
-                  _onItemTapped(0);
-
-                  Navigator.pop(context);
-
+              IconButton(
+                icon:  const Icon(Icons.logout),
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ));
                 },
               ),
-              ListTile(
-                title: const Text('Vehicles'),
-                selected: _selectedIndex == 1,
-                onTap: () {
-                  _onItemTapped(1);
-
-
-                  Navigator.pop(context);
-                },
-              ),
-
             ],
           ),
-        ),
+          body:
+          Center(
+            child: _widgetOptions[_selectedIndex],
+          ),
 
+
+
+          drawer: Drawer(
+            // Add a ListView to the drawer. This ensures the user can scroll
+            // through the options in the drawer if there isn't enough vertical
+            // space to fit everything.
+            child: ListView(
+              // Important: Remove any padding from the ListView.
+              padding: EdgeInsets.zero,
+              children: [
+                const DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                  ),
+                  child: Text('Drawer Header'),
+                ),
+
+
+                ListTile(
+                  title: const Text('Transfer files'),
+                  selected: _selectedIndex == 0,
+                  onTap: () {
+                    _onItemTapped(0);
+
+                    Navigator.pop(context);
+
+                  },
+                ),
+                ListTile(
+                  title: const Text('Vehicles'),
+                  selected: _selectedIndex == 1,
+                  onTap: () {
+                    _onItemTapped(1);
+
+
+                    Navigator.pop(context);
+                  },
+                ),
+
+              ],
+            ),
+          ),
+
+        ),
       );
   }
 
 
-
+  Future<bool> onWillPop() async {
+    DateTime now = DateTime.now();
+    if (currentBackPressTime == null || now.difference(currentBackPressTime!) > Duration(seconds: 2)) {
+      currentBackPressTime = now;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Press back again to exit the app.'),
+      ));
+      return false;
+    }
+    return true;
+  }
 
 }
 
