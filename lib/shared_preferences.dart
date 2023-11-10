@@ -12,6 +12,8 @@ const String selectFirstScreen = "selectFirstScreen";
 const String selectVehicleID = "selectVehicledID";
 const String selectTargetID = "selectTargetID";
 
+const String targetsListOrderBy = "targetsListOrderBy";
+const String movementsListOrderBy = "movementsListOrderBy";
 
 
 void  saveString(String settings, String value) async {

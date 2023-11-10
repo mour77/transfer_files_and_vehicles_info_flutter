@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,8 +9,10 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/dialogs/vehicles/add_movements.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/firebase/firebase_methods.dart';
 
+import '../../dialogs/targets/all_targets_dialog.dart';
 import '../../dialogs/vehicles/add_gas_dialog.dart';
 import '../../dialogs/vehicles/add_target_dialog.dart';
+import '../../my_entities/targets_order_by.dart';
 import '../../my_entities/utils.dart';
 import '../../my_entities/Targets.dart';
 import '../../shared_preferences.dart';
@@ -43,7 +46,7 @@ class TargetsScreenState extends State<TargetsScreen> {
   final TextEditingController  _remainingCostController = TextEditingController(text: '');
   double totalCostOfSelectedTarget = 0;
 
-
+  TargetsOrderBy selectedOrderBy = TargetsOrderBy.title;
 
 
   @override
@@ -74,8 +77,13 @@ class TargetsScreenState extends State<TargetsScreen> {
 
     print('mpika download');
 
+    String orderByCol = await getSavedString(targetsListOrderBy);
+    if (orderByCol == ''){
+      orderByCol = TargetsOrderBy.title.colName;
+    }
+
     QuerySnapshot  snapshot  = await
-    FirebaseFirestore.instance.collection('Targets').where("uid", isEqualTo: userID).get();
+    FirebaseFirestore.instance.collection('Targets').where("uid", isEqualTo: userID).orderBy(orderByCol).get();
 
 
       targetItems.clear();
@@ -88,13 +96,52 @@ class TargetsScreenState extends State<TargetsScreen> {
 
         final Targets v = Targets.fromJson(data);
         targetItems.add(
+
           DropdownMenuItem(
+
+
             value: v,
             child:
-            Row(
-              children: [
-                Text('${v.data.title}      (${v.data.totalCost})'),
-              ],
+            GestureDetector(
+                onLongPress: (){
+
+
+                  editTarget(context, v.data.id, v.data.toJson(), runMethod: DownloadTargetsAndUpdateRemainingCost );
+                },
+
+
+                child:
+                // RichText(
+                //   text: TextSpan(
+                //     children: [
+                //
+                //       WidgetSpan(
+                //         child: _getTargetIcon(v),
+                //       ),
+                //       const TextSpan(
+                //         text: 'afsfsfggdgasfsdsdfsdfsdfsdfsfsfsdfsdfdsfdsfdsfdsfffsdfdsfds',
+                //       ),
+                //     ],
+                //   ),
+                // )
+                
+                
+                Row(
+
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: _getTargetIcon(v),
+                  ),
+
+
+                  Text('${v.data.title} (${v.data.totalCost})',
+                  //  style: TextStyle(color: Colors.green),
+                  //  style: TextStyle(color: Colors.yellow[800]),
+                  //   style: TextStyle(color:_getTargetColor(v)),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -123,6 +170,50 @@ class TargetsScreenState extends State<TargetsScreen> {
 
   }
 
+
+
+
+  Widget _getTargetIcon(Targets t){
+
+    if(double.parse(t.data.remainingCost) == 0){
+      return const Icon(Icons.done_all , color: Colors.greenAccent,);
+    }
+
+    if(t.data.totalCost != t.data.remainingCost && double.parse(t.data.remainingCost) > 0){
+      return  Icon(Icons.double_arrow_outlined, color: Colors.yellow.shade800, );
+    }
+
+
+   // if(t.data.totalCost == t.data.remainingCost){
+      return  Icon(Icons.cancel_outlined, color: Colors.red.shade800);
+   // }
+
+
+
+  }
+
+
+
+
+
+  Color _getTargetColor(Targets t){
+
+    if(double.parse(t.data.remainingCost) == 0){
+      return Colors.greenAccent;
+    }
+
+    if(t.data.totalCost != t.data.remainingCost && double.parse(t.data.remainingCost) > 0){
+      return Colors.yellow.shade800;
+    }
+
+
+    // if(t.data.totalCost == t.data.remainingCost){
+    return Colors.red.shade800;
+    // }
+
+
+
+  }
 
 
   Future<void> getRemainingCost () async {
@@ -273,7 +364,7 @@ class TargetsScreenState extends State<TargetsScreen> {
 
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.only(top: 20.0 ,bottom:12, left: 22, right: 22,),
                     child:
                     GestureDetector(
 
@@ -284,7 +375,7 @@ class TargetsScreenState extends State<TargetsScreen> {
                       child: DropdownButtonFormField2<Targets>(
                         items: targetItems,
                         value: selectedTarget,
-
+                        isExpanded: true,
 
                         onChanged: (value) {
                           // Handle the selected categoryID
@@ -292,11 +383,11 @@ class TargetsScreenState extends State<TargetsScreen> {
 
                             _remainingCostController.text = value!.data.remainingCost.toString();
                             totalCostOfSelectedTarget = double.parse(value.data.totalCost);
-                            print("totalCostOfSelectedTarget $totalCostOfSelectedTarget");
+                            //print("totalCostOfSelectedTarget $totalCostOfSelectedTarget");
 
                             selectedTarget = value;
                             targetID = value.data.id;
-                            print(targetID);
+                           // print(targetID);
 
                             saveString(selectTargetID, targetID);
 
@@ -305,6 +396,9 @@ class TargetsScreenState extends State<TargetsScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Select target',
                           border: OutlineInputBorder(),
+                          // filled: true,
+                         //  fillColor:  Colors.yellow,
+                          // style: TextStyle(backgroundColor: Colors.greenAccent),
 
                         ),
                       ),
@@ -320,9 +414,19 @@ class TargetsScreenState extends State<TargetsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween, // Aligns children to the space between the start and end
               children: [
+
+                Padding(
+                  padding: const EdgeInsets.only(left: 22),
+                  child: ElevatedButton(onPressed: (){
+                    showDialog(context: context, builder: (context) => ShowSelectedTargetsTotalCostDialog());
+                  }, child: const Text('All targets')
+                  ),
+                )
+                ,
+
                 const Spacer(), // This widget takes up any remaining space
                 Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 22),
+                  padding: const EdgeInsets.only(left: 12, right: 22 ),
                   child: SizedBox(
                     width: 120,
                     height: 32,
@@ -342,6 +446,40 @@ class TargetsScreenState extends State<TargetsScreen> {
             ),
 
 
+
+
+
+
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: SegmentedButton<TargetsOrderBy>(
+                segments: const <ButtonSegment<TargetsOrderBy>>[
+                  ButtonSegment<TargetsOrderBy>(
+                      value: TargetsOrderBy.title,
+                      label: Text('Title'),
+                      icon: Icon(Icons.text_format_rounded)),
+                  ButtonSegment<TargetsOrderBy>(
+                      value: TargetsOrderBy.totalCost,
+                      label: Text('Cost'),
+                      icon: Icon(Icons.monetization_on_outlined)),
+                  ButtonSegment<TargetsOrderBy>(
+                      value: TargetsOrderBy.remainingCost,
+                      label: Text('Date'),
+                      icon: Icon(Icons.calendar_today)),
+
+
+                ],
+                selected: <TargetsOrderBy>{selectedOrderBy},
+                onSelectionChanged: (Set<TargetsOrderBy> newSelection) {
+                  setState(() {
+                    // By default there is only a single segment that can be
+                    // selected at one time, so its value is always the first
+                    // item in the selected set.
+                    selectedOrderBy = newSelection.first;
+                  });
+                },
+              ),
+            ),
 
 
 

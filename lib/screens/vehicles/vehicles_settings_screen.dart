@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/select_first_screen.dart';
 
 
+import '../../my_entities/targets_order_by.dart';
 import '../../shared_preferences.dart';
 
 
@@ -25,6 +27,7 @@ class SettingsVehiclesScreenState extends State<SettingsVehiclesScreen> {
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _portController = TextEditingController();
   SelectFirstScreen? _selectedFirstScreen;
+  TargetsOrderBy? selectedOrderBy;
 
   @override
   initState() {
@@ -46,6 +49,11 @@ class SettingsVehiclesScreenState extends State<SettingsVehiclesScreen> {
     } else {
       _selectedFirstScreen = SelectFirstScreen.vehicles;
     }
+
+
+    String orderByColName = await getSavedString(targetsListOrderBy);
+    selectedOrderBy = TargetsOrderBy.values.where((element) => element.colName == orderByColName).single;
+    selectedOrderBy ??= TargetsOrderBy.title;
 
   }
 
@@ -70,9 +78,6 @@ class SettingsVehiclesScreenState extends State<SettingsVehiclesScreen> {
                 //   title: const Text('Language'),
                 //   value: const Text('English'),
                 // ),
-
-
-
 
 
                 SettingsTile(title: const Text('Select starting screen'),
@@ -110,13 +115,56 @@ class SettingsVehiclesScreenState extends State<SettingsVehiclesScreen> {
                       ),
                     ],
                   ),
+                ),
 
 
-                )
+
+                SettingsTile(title: const Text('Targets list order by'),
+                  value:
+                  Column(
+                    children: [
+                      SegmentedButton<TargetsOrderBy>(
+                        segments: const <ButtonSegment<TargetsOrderBy>>[
+                          ButtonSegment<TargetsOrderBy>(
+                              value: TargetsOrderBy.title,
+                              label: Text('Title'),
+                              icon: Icon(Icons.text_format_rounded)),
+                          ButtonSegment<TargetsOrderBy>(
+                              value: TargetsOrderBy.totalCost,
+                              label: Text('Total cost'),
+                              icon: Icon(Icons.monetization_on_outlined),
+
+                          ),
+                          ButtonSegment<TargetsOrderBy>(
+                              value: TargetsOrderBy.remainingCost,
+                              label: Text('Remaining cost'),
+                              icon: Icon(Icons.money_off)),
+
+                          // ButtonSegment<TargetsOrderBy>(
+                          //     value: TargetsOrderBy.date,
+                          //     label: Text('Date'),
+                          //     icon: Icon(Icons.calendar_today)
+                          // ),
+                        ],
+
+                        selected: <TargetsOrderBy>{selectedOrderBy??= TargetsOrderBy.title},
+                        onSelectionChanged: (Set<TargetsOrderBy> newSelection) {
+                          setState(() {
+
+                            selectedOrderBy = newSelection.first;
+                            saveString(targetsListOrderBy, selectedOrderBy?.colName ?? TargetsOrderBy.title.colName);
+                          });
+                        },
+                      ),
+
+                    ],
+                  ),
+                ),
 
               ],
 
             ),
+
           ],
         ),
       );
