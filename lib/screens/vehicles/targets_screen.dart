@@ -61,7 +61,6 @@ class TargetsScreenState extends State<TargetsScreen> {
 
   initialize() async {
 
-    print('usrid ' + userID);
     _someDataLoadingFuture = downloadTargets();
 
 
@@ -171,6 +170,32 @@ class TargetsScreenState extends State<TargetsScreen> {
   }
 
 
+
+  Stream<QuerySnapshot<Object?>> filterMovementsListView(){
+
+
+    final CollectionReference movements = FirebaseFirestore.instance.collection('Movements');
+    Query q = movements.where('targetID', isEqualTo: targetID);
+
+    if (selectedOrderBy.name == TargetsOrderBy.title.name){
+      print('eleos1');
+
+      q = q.orderBy("title");
+    }
+    else if (selectedOrderBy.name == TargetsOrderBy.totalCost.name){
+      print('eleos2');
+      q = q.orderBy("cost");
+    }
+    else{
+      print('eleos3');
+      q = q.orderBy("date", descending: true);
+    }
+
+
+    return q.snapshots();
+
+
+  }
 
 
   Widget _getTargetIcon(Targets t){
@@ -463,7 +488,7 @@ class TargetsScreenState extends State<TargetsScreen> {
                       label: Text('Cost'),
                       icon: Icon(Icons.monetization_on_outlined)),
                   ButtonSegment<TargetsOrderBy>(
-                      value: TargetsOrderBy.remainingCost,
+                      value: TargetsOrderBy.date,
                       label: Text('Date'),
                       icon: Icon(Icons.calendar_today)),
 
@@ -472,10 +497,9 @@ class TargetsScreenState extends State<TargetsScreen> {
                 selected: <TargetsOrderBy>{selectedOrderBy},
                 onSelectionChanged: (Set<TargetsOrderBy> newSelection) {
                   setState(() {
-                    // By default there is only a single segment that can be
-                    // selected at one time, so its value is always the first
-                    // item in the selected set.
-                    selectedOrderBy = newSelection.first;
+
+                    selectedOrderBy = newSelection.single;
+
                   });
                 },
               ),
@@ -495,11 +519,14 @@ class TargetsScreenState extends State<TargetsScreen> {
 
                     return
                       StreamBuilder<QuerySnapshot>(
-                      stream: FirebaseFirestore.instance
-                          .collection('Movements')
-                          .where('targetID', isEqualTo: targetID) 
-                          .orderBy("date", descending: true)// Add your where clause here
-                          .snapshots(),
+                      stream:
+                      filterMovementsListView(),
+                      // FirebaseFirestore.instance
+                      //     .collection('Movements')
+                      //     .where('targetID', isEqualTo: targetID)
+                      //     .orderBy("date", descending: true)// Add your where clause here
+                      //     .snapshots(),
+
                       builder: (context, snapshot) {
                         if (!snapshot.hasData) {
 
