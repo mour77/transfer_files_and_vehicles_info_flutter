@@ -44,9 +44,9 @@ class DownloadScreenState extends State<DownloadScreen> {
   void initListDisks()  async {
 
     List<Map<String, dynamic>> disksList = await apiGetRequest('/displayHardDisks');
+
     setState(() {
       lista = disksList.map((map) => MyFiles.fromJsonDisks(map)).toList();
-      print(lista);
     });
 
     //lista;

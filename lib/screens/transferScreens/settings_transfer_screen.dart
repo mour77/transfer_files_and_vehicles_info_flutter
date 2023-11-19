@@ -22,6 +22,7 @@ class SettingsTransferScreen extends StatefulWidget {
 class SettingsTransferScreenState extends State<SettingsTransferScreen> {
 
   bool showThumbnail = false;
+  bool getInfoFromMyServer = false;
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _portController = TextEditingController();
   SelectFirstScreen? _selectedFirstScreen;
@@ -37,6 +38,8 @@ class SettingsTransferScreenState extends State<SettingsTransferScreen> {
   initialize() async {
 
     showThumbnail = await isThumbnailOn();
+    getInfoFromMyServer = await isMyServerInfoOn();
+
     _urlController.text = await getSavedString(urlSP);
     _portController.text = await getSavedString(portSP);
 
@@ -85,50 +88,6 @@ class SettingsTransferScreenState extends State<SettingsTransferScreen> {
               ),
 
 
-              SettingsTile(title: Container(),
-                value:  TextField(
-                    controller: _urlController,
-
-                    decoration: const InputDecoration(
-                    labelText: 'url',
-                    focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 0.5),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 0.5),
-                    ),
-                    border: OutlineInputBorder(),
-                    hintStyle: TextStyle(color: Colors.black, fontSize: 14.0)),
-                    onChanged:  (text) {
-                      saveString( urlSP,text);
-                    },
-                ),
-              ),
-
-              SettingsTile(title: const Text(''),
-              value:  TextField(
-                  controller: _portController,
-                  decoration: const InputDecoration(
-                  labelText: 'port',
-
-
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 0.5),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.black, width: 0.5),
-                  ),
-                  border: OutlineInputBorder(),
-                  hintStyle: TextStyle(color: Colors.black, fontSize: 14.0)),
-                  keyboardType: TextInputType.number,
-
-                onChanged:  (text) {
-                    saveString( portSP,text);
-                  },
-
-                ),
-              ),
-              
               
               SettingsTile(title: const Text('Select starting screen'),
               value:
@@ -171,6 +130,72 @@ class SettingsTransferScreenState extends State<SettingsTransferScreen> {
             ],
 
           ),
+
+          SettingsSection(
+            title: const Text("Server") ,
+            tiles: [
+              SettingsTile.switchTile(
+                onToggle: (value) {
+                  setState(() {
+                    getInfoFromMyServer = value;
+                    setMyServerInfo(getInfoFromMyServer);
+
+                  });
+                },
+                initialValue: getInfoFromMyServer,
+                leading: const Icon(Icons.computer_outlined),
+                title: const Text('My server info'),
+              ),
+
+              SettingsTile(title: Container(),
+                value:  TextField(
+                  enabled: !getInfoFromMyServer,
+                  controller: _urlController,
+
+                  decoration: const InputDecoration(
+                      labelText: 'external url',
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 0.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 0.5),
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(color: Colors.black, fontSize: 14.0)),
+                  onChanged:  (text) {
+                    saveString( urlSP,text);
+                  },
+                ),
+              ),
+
+              SettingsTile(title: const Text(''),
+                value:  TextField(
+                  enabled: !getInfoFromMyServer,
+
+                  controller: _portController,
+                  decoration: const InputDecoration(
+                      labelText: 'external port',
+
+
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 0.5),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 0.5),
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(color: Colors.black, fontSize: 14.0)),
+                  keyboardType: TextInputType.number,
+
+                  onChanged:  (text) {
+                    saveString( portSP,text);
+                  },
+
+                ),
+              ),
+
+            ],
+          )
         ],
       ),
     );

@@ -530,7 +530,7 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
                 children: [
                   Icon(Icons.speed_rounded ,  color:  Colors.lightBlue[800]),
 
-                  const SizedBox(width: 20), // Adds 20 pixels of space
+                  const SizedBox(width: 12), // Adds 20 pixels of space
                   Text(historyDataMap!['odometer'].toString()) ,
                 ],
               ), // Adds 20 pixels of space
@@ -568,12 +568,15 @@ class VehiclesMovementsScreenState extends State<VehiclesMovementsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
 
-                Row(
-                  children: [
-                    Icon(Icons.next_week_outlined ,  color:  Colors.lightBlue[800]),
-                    const SizedBox(width: 20),
-                    Text(historyDataMap['nextOdometer'].toString()) ,
-                  ],
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(Icons.next_week_outlined ,  color:  Colors.lightBlue[800]),
+                      const SizedBox(width: 12),
+
+                      Expanded(child: Text(historyDataMap['nextOdometer'].toString())) ,
+                    ],
+                  ),
                 ),
 
               const SizedBox(width: 32), // Adds 20 pixels of space

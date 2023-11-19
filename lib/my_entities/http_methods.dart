@@ -3,7 +3,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/firebase/firebase_methods.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/utils.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/shared_preferences.dart';
 
@@ -18,7 +20,7 @@ Future<List<Map<String, dynamic>>> apiGetRequest(String endpoint ,{Map<String, S
 
   //String url = "http://192.168.254.51:32008"   + endpoint;
   //String url = "http://192.168.0.107:32008"   + endpoint;
-  String url = await getUrlAndPort()   + endpoint;
+  String url = await getUrlAndPort() + endpoint;
 
   print( "url $url");
 
@@ -121,8 +123,21 @@ Future<void> sendFile(String filePath, String destinationPath) async {
 
 
 Future<String> getUrlAndPort() async {
-  String url = await getSavedString(urlSP);
-  String port = await getSavedString(portSP);
+
+  String url;
+  String port;
+  bool isMyServerOn = await isMyServerInfoOn();
+  if (isMyServerOn){
+    Map<String, dynamic> infoMap = await getDocument("MyServer", "info");
+    url = infoMap["localIp"];
+    port = infoMap["port"].toString();
+
+  }
+  else{
+
+     url = await getSavedString(urlSP);
+     port = await getSavedString(portSP);
+  }
 
   return "http://$url:$port";
 }

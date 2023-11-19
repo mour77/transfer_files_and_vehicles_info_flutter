@@ -5,6 +5,32 @@ import 'package:transfer_files_and_vehicles_info_flutter/my_entities/utils.dart'
 
 
 
+Future<Map<String, dynamic>> getDocument(String collection, String documentID) async {
+  try {
+    // Replace 'your_collection' with the actual name of your collection
+    // and 'your_document_id' with the actual document ID you want to retrieve.
+    DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+        .collection(collection)
+        .doc(documentID)
+        .get();
+
+    if (documentSnapshot.exists) {
+      // The document exists, you can access its data using documentSnapshot.data()
+      return documentSnapshot.data() as Map<String, dynamic>;
+    } else {
+      return {};
+    }
+
+  } catch (e) {
+    print('Error getting document: $e');
+    return {};
+
+  }
+
+
+}
+
+
 Future<void> updateDocument(String collectionName, String documentId , Map<String, dynamic> map ,{bool showToastMsg = true} ) async {
   try{
     final CollectionReference collection =
