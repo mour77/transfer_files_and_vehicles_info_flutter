@@ -6,6 +6,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:transfer_files_and_vehicles_info_flutter/dialogs/all_users_dialog.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/dialogs/vehicles/add_movements.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/firebase/firebase_methods.dart';
 
@@ -81,8 +82,24 @@ class TargetsScreenState extends State<TargetsScreen> {
       orderByCol = TargetsOrderBy.title.colName;
     }
 
+    List x = [userID];
     QuerySnapshot  snapshot  = await
-    FirebaseFirestore.instance.collection('Targets').where("uid", isEqualTo: userID).orderBy(orderByCol).get();
+    FirebaseFirestore.instance
+        .collection('Targets')
+
+        // .where(
+        // Filter.or(
+        //     Filter("uid", isEqualTo: userID),
+        //     Filter("linkUsersIds", isEqualTo: x),
+        //  //   Filter( whereIn: Arrays.asList("USA", "Japan") , ""),
+        // )
+
+
+      .where("uid", isEqualTo: userID
+
+    )
+
+        .orderBy(orderByCol).get();
 
 
       targetItems.clear();
@@ -103,9 +120,27 @@ class TargetsScreenState extends State<TargetsScreen> {
             child:
             GestureDetector(
                 onLongPress: (){
+                  showMenu(
+                    context: context,
+                    position: const RelativeRect.fromLTRB(100.0, 200.0, 100.0, 100.0),
+                    items: <PopupMenuEntry>[
+                       PopupMenuItem(
+                        child: const Text('Edit'),
+                        onTap: () => editTarget(context, v.data.id, v.data.toJson(), runMethod: DownloadTargetsAndUpdateRemainingCost )
+                      ),
+                      PopupMenuItem(
+                        child: const Text('Delete'),
+                          onTap: () => deleteDocument("Targets", v.data.id, runMethod: downloadTargets )
 
+                      ),
+                       PopupMenuItem(
+                        child: const Text('Add user'),
+                            onTap: () => showDialog(context: context, builder: (context) => ShowAllUsersDialog())
 
-                  editTarget(context, v.data.id, v.data.toJson(), runMethod: DownloadTargetsAndUpdateRemainingCost );
+                       ),
+                    ],
+                  );
+
                 },
 
 
@@ -350,7 +385,7 @@ class TargetsScreenState extends State<TargetsScreen> {
               heroTag: null,
               child: const Icon(Icons.playlist_add),
               onPressed: () {
-                addTarget(context);
+                addTarget(context , runMethod: downloadTargets);
               },
 
             ),
@@ -394,7 +429,7 @@ class TargetsScreenState extends State<TargetsScreen> {
                     GestureDetector(
 
                       onLongPress: (){
-                        editTarget(context, targetID, selectedTarget!.data.toJson(), runMethod: DownloadTargetsAndUpdateRemainingCost );
+                        // editTarget(context, targetID, selectedTarget!.data.toJson(), runMethod: DownloadTargetsAndUpdateRemainingCost );
                       },
 
                       child: DropdownButtonFormField2<Targets>(

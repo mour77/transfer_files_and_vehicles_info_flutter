@@ -13,8 +13,8 @@ import '../../my_entities/utils.dart';
 
 
 
-void addTarget(BuildContext context){
-  showTargetDialog(context );
+void addTarget(BuildContext context, { Future<void> Function()? runMethod} ){
+  showTargetDialog(context, runMethod: runMethod );
 }
 
 void editTarget(BuildContext context, String? targetID, Map<String, dynamic>? dataMap, { Future<void> Function()? runMethod} ){
