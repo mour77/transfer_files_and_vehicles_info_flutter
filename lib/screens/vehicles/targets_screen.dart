@@ -135,7 +135,7 @@ class TargetsScreenState extends State<TargetsScreen> {
                       ),
                        PopupMenuItem(
                         child: const Text('Add user'),
-                            onTap: () => showDialog(context: context, builder: (context) => ShowAllUsersDialog())
+                            onTap: () => showDialog(context: context, builder: (context) => ShowAllUsersDialog(targetID: v.data.id))
 
                        ),
                     ],

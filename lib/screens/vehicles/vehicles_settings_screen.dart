@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transfer_files_and_vehicles_info_flutter/my_entities/select_first_screen.dart';
 
 
+import '../../dialogs/all_users_dialog.dart';
 import '../../my_entities/targets_order_by.dart';
 import '../../shared_preferences.dart';
 
@@ -121,47 +122,64 @@ class SettingsVehiclesScreenState extends State<SettingsVehiclesScreen> {
 
                 SettingsTile(title: const Text('Targets list order by'),
                   value:
-                  Column(
-                    children: [
-                      SegmentedButton<TargetsOrderBy>(
-                        segments: const <ButtonSegment<TargetsOrderBy>>[
-                          ButtonSegment<TargetsOrderBy>(
-                              value: TargetsOrderBy.title,
-                              label: Text('Title'),
-                              icon: Icon(Icons.text_format_rounded)),
-                          ButtonSegment<TargetsOrderBy>(
-                              value: TargetsOrderBy.totalCost,
-                              label: Text('Total cost'),
-                              icon: Icon(Icons.monetization_on_outlined),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12.0),
+                    child: Column(
+                      children: [
+                        SegmentedButton<TargetsOrderBy>(
+                          segments: const <ButtonSegment<TargetsOrderBy>>[
+                            ButtonSegment<TargetsOrderBy>(
+                                value: TargetsOrderBy.title,
+                                label: Text('Title'),
+                                icon: Icon(Icons.text_format_rounded)),
+                            ButtonSegment<TargetsOrderBy>(
+                                value: TargetsOrderBy.totalCost,
+                                label: Text('Total cost'),
+                                icon: Icon(Icons.monetization_on_outlined),
 
-                          ),
-                          ButtonSegment<TargetsOrderBy>(
-                              value: TargetsOrderBy.remainingCost,
-                              label: Text('Remaining cost'),
-                              icon: Icon(Icons.money_off)),
+                            ),
+                            ButtonSegment<TargetsOrderBy>(
+                                value: TargetsOrderBy.remainingCost,
+                                label: Text('Remaining cost'),
+                                icon: Icon(Icons.money_off)),
 
-                          // ButtonSegment<TargetsOrderBy>(
-                          //     value: TargetsOrderBy.date,
-                          //     label: Text('Date'),
-                          //     icon: Icon(Icons.calendar_today)
-                          // ),
-                        ],
+                            // ButtonSegment<TargetsOrderBy>(
+                            //     value: TargetsOrderBy.date,
+                            //     label: Text('Date'),
+                            //     icon: Icon(Icons.calendar_today)
+                            // ),
+                          ],
 
-                        selected: <TargetsOrderBy>{selectedOrderBy??= TargetsOrderBy.title},
-                        onSelectionChanged: (Set<TargetsOrderBy> newSelection) {
-                          setState(() {
+                          selected: <TargetsOrderBy>{selectedOrderBy??= TargetsOrderBy.title},
+                          onSelectionChanged: (Set<TargetsOrderBy> newSelection) {
+                            setState(() {
 
-                            selectedOrderBy = newSelection.first;
-                            saveString(targetsListOrderBy, selectedOrderBy?.colName ?? TargetsOrderBy.title.colName);
-                          });
-                        },
-                      ),
+                              selectedOrderBy = newSelection.first;
+                              saveString(targetsListOrderBy, selectedOrderBy?.colName ?? TargetsOrderBy.title.colName);
+                            });
+                          },
+                        ),
 
-                    ],
+                      ],
+                    ),
                   ),
                 ),
 
-              ],
+                SettingsTile(title: const Text('Manage'),
+                  value:  ListTile(
+                      onTap: () => showDialog(context: context, builder: (context) => const ShowAllUsersDialog(targetID: '')),
+
+                    leading: const Icon(Icons.track_changes_sharp),
+                    title: const Text('Share target'),
+                    trailing: const Icon(Icons.arrow_forward_rounded)
+
+                  ),
+
+                  )
+                ,
+
+
+                  ],
 
             ),
 

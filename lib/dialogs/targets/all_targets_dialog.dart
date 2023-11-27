@@ -50,7 +50,9 @@ class _ShowSelectedTargetsTotalCostDialogState extends State<ShowSelectedTargets
 
         SizedBox(
           width: double.maxFinite,
-          child: Column(
+          child:
+
+          Column(
             children: [
 
               TextField(
@@ -66,60 +68,64 @@ class _ShowSelectedTargetsTotalCostDialogState extends State<ShowSelectedTargets
                     hintStyle: TextStyle(color: Colors.black, fontSize: 12.0)),
               ),
 
-              ListView.builder(
-                shrinkWrap: true,
 
 
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  var item = items[index];
-                  String itemId = item.id; // Assuming the Firestore document has an ID field
-
-                  // Initialize the checked state for each item
-                  itemCheckedState.putIfAbsent(itemId, () => false);
-
-                  return
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
-                      child: ListTile(
-                      title: Text(item['title']), // Adjust the field name as per your Firestore document
-                      trailing:
-
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          Icon(Icons.euro ,  color:  Colors.yellow[800]),
-                          const SizedBox(width: 12,),
-                          Text(item["total_cost"].toString()),
-                          Checkbox(
-                            value: itemCheckedState[itemId]!,
-                            onChanged: (value) {
-                              setState(() {
-                                itemCheckedState[itemId] = value!;
-                                if (value) {
-                                  totalCost = totalCost + item['total_cost'];
-                                  totalRemainingCost = totalRemainingCost + item['remaining_cost'];
-                                }
-                                else{
-                                  totalCost = totalCost - item['total_cost'];
-                                  totalRemainingCost = totalRemainingCost - item['remaining_cost'];
-                                }
-
-                                totalCostController.text =
-                                    'Total: $totalCost\n\nRemaining: $totalRemainingCost';
-                              });
-                            },
-                          ),
-
-                        ],
-                      ),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
 
 
-                  //  leading:
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    var item = items[index];
+                    String itemId = item.id; // Assuming the Firestore document has an ID field
 
-                  ),
-                    );
-                },
+                    // Initialize the checked state for each item
+                    itemCheckedState.putIfAbsent(itemId, () => false);
+
+                    return
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12.0),
+                        child: ListTile(
+                        title: Text(item['title']), // Adjust the field name as per your Firestore document
+                        trailing:
+
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Icon(Icons.euro ,  color:  Colors.yellow[800]),
+                            const SizedBox(width: 12,),
+                            Text(item["total_cost"].toString()),
+                            Checkbox(
+                              value: itemCheckedState[itemId]!,
+                              onChanged: (value) {
+                                setState(() {
+                                  itemCheckedState[itemId] = value!;
+                                  if (value) {
+                                    totalCost = totalCost + item['total_cost'];
+                                    totalRemainingCost = totalRemainingCost + item['remaining_cost'];
+                                  }
+                                  else{
+                                    totalCost = totalCost - item['total_cost'];
+                                    totalRemainingCost = totalRemainingCost - item['remaining_cost'];
+                                  }
+
+                                  totalCostController.text =
+                                      'Total: $totalCost\n\nRemaining: $totalRemainingCost';
+                                });
+                              },
+                            ),
+
+                          ],
+                        ),
+
+
+                    //  leading:
+
+                    ),
+                      );
+                  },
+                ),
               ),
             ],
           ),
